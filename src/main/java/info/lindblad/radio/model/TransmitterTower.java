@@ -12,6 +12,10 @@ public class TransmitterTower extends Tower {
         this.power = power;
     }
 
+    public int getPower() {
+        return this.power;
+    }
+
     public List<Coordinates> reaches() {
         LinkedList<Coordinates> covered = new LinkedList<Coordinates>();
         for (int deltaX = -1 * this.power; deltaX <= this.power; deltaX++) {
