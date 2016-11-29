@@ -8,6 +8,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class TestCoordinates
         extends TestCase
 {
@@ -57,5 +60,15 @@ public class TestCoordinates
         Coordinates firstCoordinates= new Coordinates(5, 5);
         Coordinates secondCoordinates = new Coordinates(10, 10);
         assertEquals(50, firstCoordinates.squareDistance(secondCoordinates));
+    }
+
+    public void testNearestNeighbour() {
+        Coordinates startingCoordinates= new Coordinates(5, 5);
+        Set<Coordinates> nearbyCoordinates = new HashSet<Coordinates>();
+        nearbyCoordinates.add(new Coordinates(1, 1));
+        nearbyCoordinates.add(new Coordinates(2, 2));
+        nearbyCoordinates.add(new Coordinates(3, 3));
+        nearbyCoordinates.add(new Coordinates(10, 10));
+        assertEquals(new Coordinates(3, 3), Coordinates.closestNeighbour(startingCoordinates, nearbyCoordinates));
     }
 }
