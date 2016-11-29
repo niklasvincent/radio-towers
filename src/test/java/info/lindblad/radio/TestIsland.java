@@ -33,7 +33,33 @@ public class TestIsland
     }
 
     /**
-     * Test the known case from the problem statement where one receiver is slightly out of range.
+     * Test a simple case with an island with just one transmitter tower and once receiver tower
+     */
+    public void testSimpleCaseGoodCoverage() {
+        Island island = new Island(5, 5);
+        island.addTransmitterTower(new TransmitterTower(1, new Coordinates(2, 2), 3));
+        island.addReceiverTower(new ReceiverTower(1, new Coordinates(0, 0)));
+
+        assertEquals(island.nbrOfReceiverTowersWithCoverage(), 1);
+        assertEquals(island.nbrOfReceiverTowersWithoutCoverage(), 0);
+        assertEquals(island.nbrOfReceiverTowers(), 1);
+    }
+
+    /**
+     * Test a simple case with an island with just one transmitter tower and once receiver tower
+     */
+    public void testSimpleCaseBadCoverage() {
+        Island island = new Island(5, 5);
+        island.addTransmitterTower(new TransmitterTower(1, new Coordinates(2, 2), 1));
+        island.addReceiverTower(new ReceiverTower(1, new Coordinates(0, 0)));
+
+        assertEquals(island.nbrOfReceiverTowersWithCoverage(), 0);
+        assertEquals(island.nbrOfReceiverTowersWithoutCoverage(), 1);
+        assertEquals(island.nbrOfReceiverTowers(), 1);
+    }
+
+    /**
+     * Test the known case from the problem statement where one receiver is slightly out of range
      */
     public void testKnownBadCoverage() {
         Island island = new Island(10, 10);
@@ -52,7 +78,7 @@ public class TestIsland
 
     /**
      * Test a modified version of the known case from the problem statement
-     * where all receivers are in range after because transmitter 4 has increased power.
+     * where all receivers are in range after because transmitter 4 has increased power
      */
     public void testKnownGoodCoverage() {
         Island island = new Island(10, 10);

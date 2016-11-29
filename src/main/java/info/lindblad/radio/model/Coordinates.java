@@ -1,5 +1,7 @@
 package info.lindblad.radio.model;
 
+import info.lindblad.radio.util.SimplePriorityQueue;
+
 import java.util.Set;
 
 public class Coordinates {
@@ -54,6 +56,26 @@ public class Coordinates {
             int distance = candidateCoordinates.squareDistance(startingCoordinates);
             if (distance < closestDistance) {
                 closestCoordinates = candidateCoordinates;
+                closestDistance = distance;
+            }
+        }
+        return closestCoordinates;
+    }
+
+    /**
+     * Determine the nearest neighbours to a given starting coordinates from a set of nearby coordinates
+     *
+     * @param startingCoordinates The starting coordinates
+     * @param nearbyCoordinates The nearby coordinates
+     * @return The closest coordinates from the list of nearby coordinates
+     */
+    public static SimplePriorityQueue<Coordinates> closestNeighbours(Coordinates startingCoordinates, Set<Coordinates> nearbyCoordinates) {
+        SimplePriorityQueue<Coordinates> closestCoordinates = new SimplePriorityQueue<Coordinates>();
+        int closestDistance = Integer.MAX_VALUE;
+        for (Coordinates candidateCoordinates : nearbyCoordinates) {
+            int distance = candidateCoordinates.squareDistance(startingCoordinates);
+            if (distance <= closestDistance) {
+                closestCoordinates.put(distance, candidateCoordinates);
                 closestDistance = distance;
             }
         }

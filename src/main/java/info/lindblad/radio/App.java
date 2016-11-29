@@ -5,6 +5,7 @@ import info.lindblad.radio.model.Island;
 import info.lindblad.radio.model.ReceiverTower;
 import info.lindblad.radio.model.TransmitterTower;
 
+import java.util.Map;
 import java.util.Scanner;
 
 public class App
@@ -39,6 +40,10 @@ public class App
         System.out.println(island);
 
         System.out.println(String.format("%d/%d", island.nbrOfReceiverTowersWithCoverage(), island.nbrOfReceiverTowers()));
+
+        for ( Map.Entry<TransmitterTower, Integer> change : island.getNecessaryChanges().entrySet() ) {
+            System.out.println(String.format("%d %d", change.getKey().getId(), change.getValue()));
+        }
 
     }
 }
