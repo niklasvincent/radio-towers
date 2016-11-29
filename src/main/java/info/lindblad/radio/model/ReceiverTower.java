@@ -7,7 +7,7 @@ public class ReceiverTower extends Tower {
     }
 
     public String toString() {
-        return String.format("Reciever at %s", this.coordinates.toString());
+        return String.format("Reciever %d at %s", this.id, this.coordinates.toString());
     }
 
 }

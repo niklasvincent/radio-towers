@@ -24,7 +24,7 @@ public class TransmitterTower extends Tower {
     }
 
     public String toString() {
-        return String.format("Transmitter at %s with power %d", this.coordinates.toString(), this.power);
+        return String.format("Transmitter %d at %s with power %d", this.id, this.coordinates.toString(), this.power);
     }
 
 }
