@@ -30,26 +30,32 @@ public class TestCoordinates
     }
 
     public void testEqualsForSameCoordinates() {
-        Coordinates firstCoordinate = new Coordinates(10, 10);
-        Coordinates secondCoordinate = new Coordinates(10, 10);
-        assertTrue(firstCoordinate.equals(secondCoordinate));
+        Coordinates firstCoordinates = new Coordinates(10, 10);
+        Coordinates secondCoordinates = new Coordinates(10, 10);
+        assertTrue(firstCoordinates.equals(secondCoordinates));
     }
 
     public void testEqualsForDifferentCoordinates() {
-        Coordinates firstCoordinate = new Coordinates(10, 10);
-        Coordinates secondCoordinate = new Coordinates(9, 9);
-        assertFalse(firstCoordinate.equals(secondCoordinate));
+        Coordinates firstCoordinates = new Coordinates(10, 10);
+        Coordinates secondCoordinates = new Coordinates(9, 9);
+        assertFalse(firstCoordinates.equals(secondCoordinates));
     }
 
     public void testHashCodeForSameCoordinates() {
-        Coordinates firstCoordinate = new Coordinates(10, 10);
-        Coordinates secondCoordinate = new Coordinates(10, 10);
-        assertEquals(firstCoordinate.hashCode(), secondCoordinate.hashCode());
+        Coordinates firstCoordinates = new Coordinates(10, 10);
+        Coordinates secondCoordinates = new Coordinates(10, 10);
+        assertEquals(firstCoordinates.hashCode(), secondCoordinates.hashCode());
     }
 
     public void testHashCodeForDifferentCoordinates() {
-        Coordinates firstCoordinate = new Coordinates(10, 10);
-        Coordinates secondCoordinate = new Coordinates(10, 10);
-        assertNotSame(firstCoordinate.hashCode(), secondCoordinate.hashCode());
+        Coordinates firstCoordinates = new Coordinates(10, 10);
+        Coordinates secondCoordinates = new Coordinates(10, 10);
+        assertNotSame(firstCoordinates.hashCode(), secondCoordinates.hashCode());
+    }
+
+    public void testSquareDistance() {
+        Coordinates firstCoordinates= new Coordinates(5, 5);
+        Coordinates secondCoordinates = new Coordinates(10, 10);
+        assertEquals(50, firstCoordinates.squareDistance(secondCoordinates));
     }
 }

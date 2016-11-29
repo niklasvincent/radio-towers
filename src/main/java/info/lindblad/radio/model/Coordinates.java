@@ -18,6 +18,10 @@ public class Coordinates {
         return this.y;
     }
 
+    public int squareDistance(Coordinates other) {
+        return (int)(Math.pow((other.x - this.x), 2) + Math.pow((other.y - this.y), 2));
+    }
+
     public String toString() {
         return String.format("(%d, %d)", this.x, this.y);
     }
