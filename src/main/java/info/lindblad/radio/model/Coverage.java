@@ -7,28 +7,28 @@ import java.util.Set;
 
 public class Coverage {
 
-    private HashMap<Coordinates, Set<TransmitterTower>> coverage;
+    private HashMap<Point, Set<TransmitterTower>> coverage;
 
     public Coverage() {
-        coverage = new HashMap<Coordinates, Set<TransmitterTower>>();
+        coverage = new HashMap<Point, Set<TransmitterTower>>();
     }
 
-    public Set<TransmitterTower> get(Coordinates coordinates) {
-        return coverage.containsKey(coordinates) ? coverage.get(coordinates) : new HashSet<TransmitterTower>();
+    public Set<TransmitterTower> get(Point point) {
+        return coverage.containsKey(point) ? coverage.get(point) : new HashSet<TransmitterTower>();
     }
 
-    public void put(Coordinates coordinates, TransmitterTower transmitterTower) {
-        if (!coverage.containsKey(coordinates)) {
-            coverage.put(coordinates, new HashSet<TransmitterTower>());
+    public void put(Point point, TransmitterTower transmitterTower) {
+        if (!coverage.containsKey(point)) {
+            coverage.put(point, new HashSet<TransmitterTower>());
         }
-        coverage.get(coordinates).add(transmitterTower);
+        coverage.get(point).add(transmitterTower);
     }
 
-    public boolean isCovered(Coordinates coordinates) {
-        return coverage.containsKey(coordinates);
+    public boolean isCovered(Point point) {
+        return coverage.containsKey(point);
     }
 
-    public Set<Coordinates> keySet() {
+    public Set<Point> keySet() {
         return coverage.keySet();
     }
 

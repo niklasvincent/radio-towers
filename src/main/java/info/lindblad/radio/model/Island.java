@@ -10,8 +10,8 @@ public class Island {
     private int sizeX;
     private int sizeY;
 
-    private HashMap<Coordinates, TransmitterTower> transmitterTowers;
-    private HashMap<Coordinates, ReceiverTower> receiverTowers;
+    private HashMap<Point, TransmitterTower> transmitterTowers;
+    private HashMap<Point, ReceiverTower> receiverTowers;
 
     private Coverage coverage;
 
@@ -24,7 +24,7 @@ public class Island {
     }
 
     public void addTransmitterTower(TransmitterTower transmitterTower) {
-        transmitterTowers.put(transmitterTower.getCoordinates(), transmitterTower);
+        transmitterTowers.put(transmitterTower.getPoint(), transmitterTower);
         updateCoverage(transmitterTower);
     }
 
@@ -34,7 +34,7 @@ public class Island {
     }
 
     public void addReceiverTower(ReceiverTower receiverTower) {
-        receiverTowers.put(receiverTower.getCoordinates(), receiverTower);
+        receiverTowers.put(receiverTower.getPoint(), receiverTower);
     }
 
     public int nbrOfReceiverTowers() {
@@ -58,16 +58,16 @@ public class Island {
         return receiveTowersWithoutCoverage;
     }
 
-    private Set<Coordinates> findClosestCoveragePoints(Coordinates coordinates) {
-        return Coordinates.closestNeighbours(coordinates, coverage.keySet()).pollFirstEntry().getValue();
+    private Set<Point> findClosestCoveragePoints(Point point) {
+        return Point.closestNeighbours(point, coverage.keySet()).pollFirstEntry().getValue();
     }
 
     private SimplePriorityQueue<TransmitterTower> getRequiredTransmitterTowerChanges() {
         SimplePriorityQueue<TransmitterTower> requiredChanges = new SimplePriorityQueue<>();
         for (ReceiverTower receiverTower :  receiverTowersWithoutCoverage()) {
-            Set<Coordinates> closestCoverageCoordinates = findClosestCoveragePoints(receiverTower.getCoordinates());
-            for (Coordinates closest : closestCoverageCoordinates) {
-                int requiredPowerIncrease = (int) Math.ceil(closest.distance(receiverTower.coordinates));
+            Set<Point> closestCoverageCoordinates = findClosestCoveragePoints(receiverTower.getPoint());
+            for (Point closest : closestCoverageCoordinates) {
+                int requiredPowerIncrease = (int) Math.ceil(closest.distance(receiverTower.point));
                 Set<TransmitterTower> candidateTransmitterTowers = coverage.get(closest);
                 candidateTransmitterTowers
                         .forEach(candidateTransmitterTower -> requiredChanges.put(requiredPowerIncrease, candidateTransmitterTower));
@@ -85,7 +85,7 @@ public class Island {
             Map.Entry<Integer, HashSet<TransmitterTower>> requiredChange = requiredChanges.pollLastEntry();
             int requiredPowerIncrease = requiredChange.getKey();
             for (TransmitterTower transmitterTower: requiredChange.getValue()) {
-                Set<Coordinates> newReach = transmitterTower.reachesWithIncreasedPower(requiredPowerIncrease).stream()
+                Set<Point> newReach = transmitterTower.reachesWithIncreasedPower(requiredPowerIncrease).stream()
                         .filter(this::isWithinBounds)
                         .collect(Collectors.toSet());
                 int nbrOfNewReceiverTowersWithCoverage = newReach.stream()
@@ -107,8 +107,8 @@ public class Island {
         return changesMade;
     }
 
-    private boolean isWithinBounds(Coordinates coordinates) {
-        return coordinates.getX() >= 0 && coordinates.getX() < sizeX && coordinates.getY() >= 0 && coordinates.getY() < sizeY;
+    private boolean isWithinBounds(Point point) {
+        return point.getX() >= 0 && point.getX() < sizeX && point.getY() >= 0 && point.getY() < sizeY;
     }
 
     private void updateCoverage(TransmitterTower transmitterTower) {
@@ -121,12 +121,12 @@ public class Island {
         StringBuilder sb = new StringBuilder();
         for (int y = sizeX - 1; y >= 0; y--) {
             for (int x = 0; x < this.sizeX; x++) {
-                Coordinates coordinates = new Coordinates(x, y);
-                if (receiverTowers.containsKey(coordinates)) {
-                    sb.append(String.format("  R%d", receiverTowers.get(coordinates).getId()));
-                } else if (transmitterTowers.containsKey(coordinates)) {
-                    sb.append(String.format("  T%d", transmitterTowers.get(coordinates).getId()));
-                } else if (coverage.isCovered(coordinates)) {
+                Point point = new Point(x, y);
+                if (receiverTowers.containsKey(point)) {
+                    sb.append(String.format("  R%d", receiverTowers.get(point).getId()));
+                } else if (transmitterTowers.containsKey(point)) {
+                    sb.append(String.format("  T%d", transmitterTowers.get(point).getId()));
+                } else if (coverage.isCovered(point)) {
                     sb.append("  * ");
                 }
                 else {

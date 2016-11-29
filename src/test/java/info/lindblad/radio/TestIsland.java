@@ -1,15 +1,12 @@
 package info.lindblad.radio;
 
-import info.lindblad.radio.model.Coordinates;
+import info.lindblad.radio.model.Point;
 import info.lindblad.radio.model.Island;
 import info.lindblad.radio.model.ReceiverTower;
 import info.lindblad.radio.model.TransmitterTower;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class TestIsland
         extends TestCase
@@ -37,8 +34,8 @@ public class TestIsland
      */
     public void testSimpleCaseGoodCoverage() {
         Island island = new Island(5, 5);
-        island.addTransmitterTower(new TransmitterTower(1, new Coordinates(2, 2), 3));
-        island.addReceiverTower(new ReceiverTower(1, new Coordinates(0, 0)));
+        island.addTransmitterTower(new TransmitterTower(1, new Point(2, 2), 3));
+        island.addReceiverTower(new ReceiverTower(1, new Point(0, 0)));
 
         assertEquals(island.nbrOfReceiverTowersWithCoverage(), 1);
         assertEquals(island.nbrOfReceiverTowersWithoutCoverage(), 0);
@@ -50,8 +47,8 @@ public class TestIsland
      */
     public void testSimpleCaseBadCoverage() {
         Island island = new Island(5, 5);
-        island.addTransmitterTower(new TransmitterTower(1, new Coordinates(2, 2), 1));
-        island.addReceiverTower(new ReceiverTower(1, new Coordinates(0, 0)));
+        island.addTransmitterTower(new TransmitterTower(1, new Point(2, 2), 1));
+        island.addReceiverTower(new ReceiverTower(1, new Point(0, 0)));
 
         assertEquals(island.nbrOfReceiverTowersWithCoverage(), 0);
         assertEquals(island.nbrOfReceiverTowersWithoutCoverage(), 1);
@@ -63,13 +60,13 @@ public class TestIsland
      */
     public void testKnownBadCoverage() {
         Island island = new Island(10, 10);
-        island.addTransmitterTower(new TransmitterTower(1, new Coordinates(2, 5), 1));
-        island.addTransmitterTower(new TransmitterTower(2, new Coordinates(0, 6), 3));
-        island.addTransmitterTower(new TransmitterTower(3, new Coordinates(1, 2), 2));
-        island.addTransmitterTower(new TransmitterTower(4, new Coordinates(3, 5), 3));
-        island.addReceiverTower(new ReceiverTower(1, new Coordinates(0, 1)));
-        island.addReceiverTower(new ReceiverTower(2, new Coordinates(8, 8)));
-        island.addReceiverTower(new ReceiverTower(3, new Coordinates(6, 5)));
+        island.addTransmitterTower(new TransmitterTower(1, new Point(2, 5), 1));
+        island.addTransmitterTower(new TransmitterTower(2, new Point(0, 6), 3));
+        island.addTransmitterTower(new TransmitterTower(3, new Point(1, 2), 2));
+        island.addTransmitterTower(new TransmitterTower(4, new Point(3, 5), 3));
+        island.addReceiverTower(new ReceiverTower(1, new Point(0, 1)));
+        island.addReceiverTower(new ReceiverTower(2, new Point(8, 8)));
+        island.addReceiverTower(new ReceiverTower(3, new Point(6, 5)));
 
         assertEquals(island.nbrOfReceiverTowersWithCoverage(), 2);
         assertEquals(island.nbrOfReceiverTowersWithoutCoverage(), 1);
@@ -82,13 +79,13 @@ public class TestIsland
      */
     public void testKnownGoodCoverage() {
         Island island = new Island(10, 10);
-        island.addTransmitterTower(new TransmitterTower(1, new Coordinates(2, 5), 1));
-        island.addTransmitterTower(new TransmitterTower(2, new Coordinates(0, 6), 3));
-        island.addTransmitterTower(new TransmitterTower(3, new Coordinates(1, 2), 2));
-        island.addTransmitterTower(new TransmitterTower(4, new Coordinates(3, 5), 5));
-        island.addReceiverTower(new ReceiverTower(1, new Coordinates(0, 1)));
-        island.addReceiverTower(new ReceiverTower(2, new Coordinates(8, 8)));
-        island.addReceiverTower(new ReceiverTower(3, new Coordinates(6, 5)));
+        island.addTransmitterTower(new TransmitterTower(1, new Point(2, 5), 1));
+        island.addTransmitterTower(new TransmitterTower(2, new Point(0, 6), 3));
+        island.addTransmitterTower(new TransmitterTower(3, new Point(1, 2), 2));
+        island.addTransmitterTower(new TransmitterTower(4, new Point(3, 5), 5));
+        island.addReceiverTower(new ReceiverTower(1, new Point(0, 1)));
+        island.addReceiverTower(new ReceiverTower(2, new Point(8, 8)));
+        island.addReceiverTower(new ReceiverTower(3, new Point(6, 5)));
 
         assertEquals(island.nbrOfReceiverTowersWithCoverage(), 3);
         assertEquals(island.nbrOfReceiverTowersWithoutCoverage(), 0);

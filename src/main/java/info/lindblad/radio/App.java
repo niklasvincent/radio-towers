@@ -1,6 +1,6 @@
 package info.lindblad.radio;
 
-import info.lindblad.radio.model.Coordinates;
+import info.lindblad.radio.model.Point;
 import info.lindblad.radio.model.Island;
 import info.lindblad.radio.model.ReceiverTower;
 import info.lindblad.radio.model.TransmitterTower;
@@ -25,14 +25,14 @@ public class App
             int id = scan.nextInt();
             int x = scan.nextInt();
             int y = scan.nextInt();
-            Coordinates coordinates = new Coordinates(x, y);
+            Point point = new Point(x, y);
             readingTransmitters = (id == 1) != readingTransmitters;
             if (readingTransmitters) {
                 int power = scan.nextInt();
-                TransmitterTower transmitterTower = new TransmitterTower(id, coordinates, power);
+                TransmitterTower transmitterTower = new TransmitterTower(id, point, power);
                 island.addTransmitterTower(transmitterTower);
             } else {
-                ReceiverTower receiverTower = new ReceiverTower(id, coordinates);
+                ReceiverTower receiverTower = new ReceiverTower(id, point);
                 island.addReceiverTower(receiverTower);
             }
         }

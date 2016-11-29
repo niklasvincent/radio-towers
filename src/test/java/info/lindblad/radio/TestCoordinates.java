@@ -1,9 +1,6 @@
 package info.lindblad.radio;
 
-import info.lindblad.radio.model.Coordinates;
-import info.lindblad.radio.model.Island;
-import info.lindblad.radio.model.ReceiverTower;
-import info.lindblad.radio.model.TransmitterTower;
+import info.lindblad.radio.model.Point;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -33,42 +30,42 @@ public class TestCoordinates
     }
 
     public void testEqualsForSameCoordinates() {
-        Coordinates firstCoordinates = new Coordinates(10, 10);
-        Coordinates secondCoordinates = new Coordinates(10, 10);
-        assertTrue(firstCoordinates.equals(secondCoordinates));
+        Point firstPoint = new Point(10, 10);
+        Point secondPoint = new Point(10, 10);
+        assertTrue(firstPoint.equals(secondPoint));
     }
 
     public void testEqualsForDifferentCoordinates() {
-        Coordinates firstCoordinates = new Coordinates(10, 10);
-        Coordinates secondCoordinates = new Coordinates(9, 9);
-        assertFalse(firstCoordinates.equals(secondCoordinates));
+        Point firstPoint = new Point(10, 10);
+        Point secondPoint = new Point(9, 9);
+        assertFalse(firstPoint.equals(secondPoint));
     }
 
     public void testHashCodeForSameCoordinates() {
-        Coordinates firstCoordinates = new Coordinates(10, 10);
-        Coordinates secondCoordinates = new Coordinates(10, 10);
-        assertEquals(firstCoordinates.hashCode(), secondCoordinates.hashCode());
+        Point firstPoint = new Point(10, 10);
+        Point secondPoint = new Point(10, 10);
+        assertEquals(firstPoint.hashCode(), secondPoint.hashCode());
     }
 
     public void testHashCodeForDifferentCoordinates() {
-        Coordinates firstCoordinates = new Coordinates(10, 10);
-        Coordinates secondCoordinates = new Coordinates(10, 10);
-        assertNotSame(firstCoordinates.hashCode(), secondCoordinates.hashCode());
+        Point firstPoint = new Point(10, 10);
+        Point secondPoint = new Point(10, 10);
+        assertNotSame(firstPoint.hashCode(), secondPoint.hashCode());
     }
 
     public void testSquareDistance() {
-        Coordinates firstCoordinates= new Coordinates(5, 5);
-        Coordinates secondCoordinates = new Coordinates(10, 10);
-        assertEquals(50, firstCoordinates.squareDistance(secondCoordinates));
+        Point firstPoint = new Point(5, 5);
+        Point secondPoint = new Point(10, 10);
+        assertEquals(50, firstPoint.squareDistance(secondPoint));
     }
 
     public void testNearestNeighbour() {
-        Coordinates startingCoordinates= new Coordinates(5, 5);
-        Set<Coordinates> nearbyCoordinates = new HashSet<Coordinates>();
-        nearbyCoordinates.add(new Coordinates(1, 1));
-        nearbyCoordinates.add(new Coordinates(2, 2));
-        nearbyCoordinates.add(new Coordinates(3, 3));
-        nearbyCoordinates.add(new Coordinates(10, 10));
-        assertEquals(new Coordinates(3, 3), Coordinates.closestNeighbour(startingCoordinates, nearbyCoordinates));
+        Point startingPoint = new Point(5, 5);
+        Set<Point> nearbyCoordinates = new HashSet<Point>();
+        nearbyCoordinates.add(new Point(1, 1));
+        nearbyCoordinates.add(new Point(2, 2));
+        nearbyCoordinates.add(new Point(3, 3));
+        nearbyCoordinates.add(new Point(10, 10));
+        assertEquals(new Point(3, 3), Point.closestNeighbour(startingPoint, nearbyCoordinates));
     }
 }
