@@ -1,141 +1,143 @@
 package info.lindblad.radio.model;
 
-import info.lindblad.radio.util.SimplePriorityQueue;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Optional;
 
 public class Island {
 
-    private int sizeX;
-    private int sizeY;
+    /**
+     * The bound of the island. Used to check whether points are actually
+     * part of the island or not.
+     */
+    private Bounds bounds;
 
+    /**
+     * Instead of storing a 2D grid with (potentially) a lot of wasted space,
+     * the transmitters and receivers are sparsely stored using two different
+     * maps where the key is a given Point.
+     */
     private HashMap<Point, TransmitterTower> transmitterTowers;
     private HashMap<Point, ReceiverTower> receiverTowers;
 
-    private Coverage coverage;
-
     public Island(int sizeX, int sizeY) {
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
+        bounds = new Bounds(sizeX, sizeY);
         transmitterTowers = new HashMap<>();
         receiverTowers = new HashMap<>();
-        coverage = new Coverage();
     }
 
+    /**
+     * Get the bounds of the island
+     *
+     * @return The bounds of the island
+     */
+    public Bounds getBounds() {
+        return bounds;
+    }
+
+    /**
+     * Get a map of all transmitter towers on the island
+     *
+     * @return Map of transmitter towers
+     */
+    public HashMap<Point, TransmitterTower> getTransmitterTowers() {
+        return transmitterTowers;
+    }
+
+    /**
+     * Get a map of all receiver towers on the island
+     *
+     * @return Map of receiver towers
+     */
+    public HashMap<Point, ReceiverTower> getReceiverTowers() {
+        return receiverTowers;
+    }
+
+    /**
+     * Add transmitter tower to the island
+     *
+     * @param transmitterTower The transmitter tower
+     */
     public void addTransmitterTower(TransmitterTower transmitterTower) {
         transmitterTowers.put(transmitterTower.getPoint(), transmitterTower);
-        updateCoverage(transmitterTower);
     }
 
-    private void increasePowerForTransmissionTower(TransmitterTower transmitterTower, int powerIncrease) {
-        transmitterTower.increasePower(powerIncrease);
-        updateCoverage(transmitterTower);
-    }
-
+    /**
+     * Add receiver tower to the island
+     *
+     * @param receiverTower The receiver tower
+     */
     public void addReceiverTower(ReceiverTower receiverTower) {
         receiverTowers.put(receiverTower.getPoint(), receiverTower);
     }
 
+    /**
+     * Get the number of transmitter towers on the island
+     *
+     * @return The number of transmitter towers on the island
+     */
+    public int nbrOfTransmitterTowers() {
+        return receiverTowers.size();
+    }
+
+    /**
+     * Get the number of receiver towers on the island
+     *
+     * @return The number of receiver towers on the island
+     */
     public int nbrOfReceiverTowers() {
         return receiverTowers.size();
     }
 
-    public int nbrOfReceiverTowersWithCoverage() {
-        return receiverTowers.size() - receiverTowersWithoutCoverage().size();
+    /**
+     * Check equality between two islands
+     *
+     * @param o Other island
+     * @return Whether the two islands are the same
+     */
+    @Override
+    public boolean equals(Object o) {
+        return (o instanceof Island)
+                && (((Island) o).getReceiverTowers().equals(getReceiverTowers())
+                && ((Island) o).getTransmitterTowers().equals(getTransmitterTowers())
+                && ((Island) o).getBounds().equals(getBounds())
+        );
     }
 
-    public int nbrOfReceiverTowersWithoutCoverage() {
-        return receiverTowersWithoutCoverage().size();
-    }
-
-    private Set<ReceiverTower> receiverTowersWithoutCoverage() {
-        Set<ReceiverTower> receiveTowersWithoutCoverage =
-                receiverTowers.keySet().stream()
-                        .filter(coordinates -> !coverage.isCovered(coordinates))
-                        .map(coordinates -> receiverTowers.get(coordinates))
-                        .collect(Collectors.toSet());
-        return receiveTowersWithoutCoverage;
-    }
-
-    private Set<Point> findClosestCoveragePoints(Point point) {
-        return Point.closestNeighbours(point, coverage.keySet()).pollFirstEntry().getValue();
-    }
-
-    private SimplePriorityQueue<TransmitterTower> getRequiredTransmitterTowerChanges() {
-        SimplePriorityQueue<TransmitterTower> requiredChanges = new SimplePriorityQueue<>();
-        for (ReceiverTower receiverTower :  receiverTowersWithoutCoverage()) {
-            Set<Point> closestCoverageCoordinates = findClosestCoveragePoints(receiverTower.getPoint());
-            for (Point closest : closestCoverageCoordinates) {
-                int requiredPowerIncrease = (int) Math.ceil(closest.distance(receiverTower.point));
-                Set<TransmitterTower> candidateTransmitterTowers = coverage.get(closest);
-                candidateTransmitterTowers
-                        .forEach(candidateTransmitterTower -> requiredChanges.put(requiredPowerIncrease, candidateTransmitterTower));
-            }
-        }
-        return requiredChanges;
-    }
-
-    public Map<TransmitterTower, Integer> getNecessaryChanges() {
-        Map<TransmitterTower, Integer> changesMade = new HashMap<>();
-        Set<ReceiverTower> receiverTowersWithoutCoverage = receiverTowersWithoutCoverage();
-        while (receiverTowersWithoutCoverage.size() > 0) {
-            SimplePriorityQueue<TransmitterTower> requiredChanges = getRequiredTransmitterTowerChanges();
-            SimplePriorityQueue<TransmitterTower> suggestedChanges = new SimplePriorityQueue<>();
-            Map.Entry<Integer, HashSet<TransmitterTower>> requiredChange = requiredChanges.pollLastEntry();
-            int requiredPowerIncrease = requiredChange.getKey();
-            for (TransmitterTower transmitterTower: requiredChange.getValue()) {
-                Set<Point> newReach = transmitterTower.reachesWithIncreasedPower(requiredPowerIncrease).stream()
-                        .filter(this::isWithinBounds)
-                        .collect(Collectors.toSet());
-                int nbrOfNewReceiverTowersWithCoverage = newReach.stream()
-                        .map(coordinates -> receiverTowers.get(coordinates))
-                        .filter(receiverTower ->  receiverTower != null)
-                        .filter(receiverTowersWithoutCoverage::contains)
-                        .collect(Collectors.toList()).size();
-                System.out.println("Increase for " + transmitterTower + " would yield " + nbrOfNewReceiverTowersWithCoverage);
-                suggestedChanges.put(nbrOfNewReceiverTowersWithCoverage, transmitterTower);
-            }
-//            System.out.println("suggestedChanges = " + suggestedChanges);
-            TransmitterTower transmitterTowerToIncreasePowerFor = suggestedChanges.pollFirstEntry().getValue().iterator().next();
-//            System.out.println("Making changes for " + transmitterTowerToIncreasePowerFor);
-            increasePowerForTransmissionTower(transmitterTowerToIncreasePowerFor, requiredPowerIncrease);
-            changesMade.put(transmitterTowerToIncreasePowerFor, transmitterTowerToIncreasePowerFor.getPower());
-//            System.out.println("receiverTowersWithoutCoverage = " + receiverTowersWithoutCoverage);
-            receiverTowersWithoutCoverage = receiverTowersWithoutCoverage();
-        }
-        return changesMade;
-    }
-
-    private boolean isWithinBounds(Point point) {
-        return point.getX() >= 0 && point.getX() < sizeX && point.getY() >= 0 && point.getY() < sizeY;
-    }
-
-    private void updateCoverage(TransmitterTower transmitterTower) {
-        transmitterTower.reaches().stream().filter(this::isWithinBounds).forEach(coordinatesReached -> {
-            coverage.put(coordinatesReached, transmitterTower);
-        });
-    }
-
-    public String toString() {
+    /**
+     * Return a string representation of the island as an ASCII grid with signal coverage marked
+     *
+     * @param coverage The signal coverage
+     * @return String representation of the island
+     */
+    public String toString(Coverage coverage) {
+        Optional<Coverage> optionalCoverage = Optional.ofNullable(coverage);
         StringBuilder sb = new StringBuilder();
-        for (int y = sizeX - 1; y >= 0; y--) {
-            for (int x = 0; x < this.sizeX; x++) {
+        for (int y = this.bounds.getSizeX() - 1; y >= 0; y--) {
+            for (int x = 0; x < this.bounds.getSizeX(); x++) {
                 Point point = new Point(x, y);
                 if (receiverTowers.containsKey(point)) {
                     sb.append(String.format("  R%d", receiverTowers.get(point).getId()));
                 } else if (transmitterTowers.containsKey(point)) {
                     sb.append(String.format("  T%d", transmitterTowers.get(point).getId()));
-                } else if (coverage.isCovered(point)) {
+                } else if (optionalCoverage.isPresent() && optionalCoverage.get().hasSignal(point)) {
                     sb.append("  * ");
-                }
-                else {
+                } else {
                     sb.append("  x ");
                 }
             }
             sb.append("\n");
         }
         return sb.toString();
+    }
+
+    /**
+     * Return a string representation of the island as an ASCII grid
+     *
+     * @return String representation of the island
+     */
+    @Override
+    public String toString() {
+       return toString(null);
     }
 
 }

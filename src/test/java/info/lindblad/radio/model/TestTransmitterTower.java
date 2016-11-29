@@ -1,7 +1,5 @@
-package info.lindblad.radio;
+package info.lindblad.radio.model;
 
-import info.lindblad.radio.model.Point;
-import info.lindblad.radio.model.TransmitterTower;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -10,27 +8,22 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TestTransmitterTower
-        extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
+public class TestTransmitterTower extends TestCase {
+
     public TestTransmitterTower( String testName )
     {
         super( testName );
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
     public static Test suite()
     {
         return new TestSuite( TestTransmitterTower.class );
     }
 
+    /**
+     * Test that the transmitter tower calculates the correct points covered by
+     * its signal (using Chebyshev distance)
+     */
     public void testReaches() {
         Point point = new Point(1, 1);
         TransmitterTower transmitterTower = new TransmitterTower(1, point, 1);
@@ -49,6 +42,10 @@ public class TestTransmitterTower
         assertEquals(reaches, expected);
     }
 
+    /**
+     * Test that the transmitter tower calculates the correct points covered by
+     * an increase in signal (using Chebyshev distance)
+     */
     public void testReachesWithIncreasedPower() {
         Point point = new Point(2, 2);
         TransmitterTower transmitterTower = new TransmitterTower(1, point, 1);
