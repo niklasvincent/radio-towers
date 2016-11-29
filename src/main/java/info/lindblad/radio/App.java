@@ -6,8 +6,6 @@ import info.lindblad.radio.model.ReceiverTower;
 import info.lindblad.radio.model.TransmitterTower;
 
 import java.util.Scanner;
-import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
 
 public class App
 {
@@ -40,7 +38,7 @@ public class App
 
         System.out.println(island);
 
-        System.out.println(String.format("%d/%d", island.nbrOfReceiverTowersWithinCoverage(), island.nbrOfReceiverTowers()));
+        System.out.println(String.format("%d/%d", island.nbrOfReceiverTowersWithCoverage(), island.nbrOfReceiverTowers()));
 
     }
 }

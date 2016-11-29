@@ -33,14 +33,22 @@ public class Island {
         return receiverTowers.size();
     }
 
-    public int nbrOfReceiverTowersWithinCoverage() {
-        int nbrOfReceiverTowersWithinCoverage = 0;
+    public int nbrOfReceiverTowersWithCoverage() {
+        return receiverTowers.size() - receiverTowersWithoutCoverage().size();
+    }
+
+    public int nbrOfReceiverTowersWithoutCoverage() {
+        return receiverTowersWithoutCoverage().size();
+    }
+
+    private Set<ReceiverTower> receiverTowersWithoutCoverage() {
+        Set<ReceiverTower> receiveTowersWithoutCoverage  = new HashSet<ReceiverTower>();
         for (Coordinates coordinates : receiverTowers.keySet()) {
-            if (coverage.get(coordinates)) {
-                nbrOfReceiverTowersWithinCoverage++;
+            if (!coverage.get(coordinates)) {
+                receiveTowersWithoutCoverage.add(receiverTowers.get(coordinates));
             }
         }
-        return nbrOfReceiverTowersWithinCoverage;
+        return receiveTowersWithoutCoverage;
     }
 
     private boolean isWithinBounds(Coordinates coordinates) {
