@@ -59,7 +59,7 @@ public class Coverage {
      */
     public void coveredBy(Point point, TransmitterTower transmitterTower) {
         if (!coverage.containsKey(point)) {
-            coverage.put(point, new HashSet<TransmitterTower>());
+            coverage.put(point, new HashSet<>());
         }
         coverage.get(point).add(transmitterTower);
     }
