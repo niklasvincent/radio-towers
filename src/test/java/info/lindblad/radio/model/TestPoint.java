@@ -63,7 +63,7 @@ public class TestPoint extends TestCase {
     public void testSquareDistance() {
         Point firstPoint = new Point(5, 5);
         Point secondPoint = new Point(10, 10);
-        assertEquals(50, firstPoint.squareDistance(secondPoint));
+        assertEquals(5, firstPoint.distance(secondPoint));
     }
 
     /**

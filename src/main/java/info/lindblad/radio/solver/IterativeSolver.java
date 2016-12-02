@@ -59,7 +59,7 @@ public class IterativeSolver {
         for (ReceiverTower receiverTowerWithoutCoverage :  receiverTowersWithoutCoverage) {
             Set<Point> closestCoveragePoints = coverage.findClosestPointsWithSignal(receiverTowerWithoutCoverage.getPoint());
             for (Point nearbyCoveragePoint : closestCoveragePoints) {
-                int requiredPowerIncrease = nearbyCoveragePoint.roundedUpDistance(receiverTowerWithoutCoverage.getPoint());
+                int requiredPowerIncrease = nearbyCoveragePoint.distance(receiverTowerWithoutCoverage.getPoint());
                 Set<TransmitterTower> candidateTransmitterTowers = coverage.getTransmitterTowersCovering(nearbyCoveragePoint);
                 candidateTransmitterTowers
                         .forEach(candidateTransmitterTower -> requiredChanges.put(requiredPowerIncrease, candidateTransmitterTower));

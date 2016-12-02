@@ -4,6 +4,9 @@ import info.lindblad.radio.util.SimplePriorityQueue;
 
 import java.util.Set;
 
+import static java.lang.Math.abs;
+import static java.lang.Math.max;
+
 public class Point {
 
     private int x;
@@ -33,33 +36,13 @@ public class Point {
     }
 
     /**
-     * Calculate the square distance between two point
+     * Calculate the Chebyshev distance between two points
      *
      * @param other Another point object
-     * @return The square distance between the two point
+     * @return The Chebyshev distance between the two points
      */
-    public int squareDistance(Point other) {
-        return (int)(Math.pow((other.x - this.x), 2) + Math.pow((other.y - this.y), 2));
-    }
-
-    /**
-     * Calculate the distance between two point
-     *
-     * @param other Another point object
-     * @return The square distance between the two points
-     */
-    public double distance(Point other) {
-        return Math.sqrt(squareDistance(other));
-    }
-
-    /**
-     * Calculate the rounded up distance between two points
-     *
-     * @param other Another point object
-     * @return The rounded up distance between the two points
-     */
-    public int roundedUpDistance(Point other) {
-        return (int) Math.ceil(distance(other));
+    public int distance(Point other) {
+        return max(abs(x - other.x), abs(y - other.y));
     }
 
     /**
@@ -73,7 +56,7 @@ public class Point {
         SimplePriorityQueue<Point> closestPoints = new SimplePriorityQueue<Point>();
         int closestDistanceSoFar = Integer.MAX_VALUE;
         for (Point candidatePoint : nearbyPoints) {
-            int distance = candidatePoint.squareDistance(startingPoint);
+            int distance = candidatePoint.distance(startingPoint);
             if (distance <= closestDistanceSoFar) {
                 closestDistanceSoFar = distance;
                 closestPoints.put(distance, candidatePoint);
