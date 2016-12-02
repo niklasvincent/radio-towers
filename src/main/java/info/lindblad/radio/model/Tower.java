@@ -3,19 +3,19 @@ package info.lindblad.radio.model;
 public abstract class Tower {
 
     protected int id;
-    protected Coordinates coordinates;
+    protected Point point;
 
-    Tower(int id, Coordinates coordinates) {
+    Tower(int id, Point point) {
         this.id = id;
-        this.coordinates = coordinates;
+        this.point = point;
     }
 
     public int getId() {
         return this.id;
     }
 
-    public Coordinates getCoordinates() {
-        return this.coordinates;
+    public Point getPoint() {
+        return this.point;
     }
 
 }

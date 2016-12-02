@@ -1,87 +1,143 @@
 package info.lindblad.radio.model;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Optional;
 
 public class Island {
 
-    private int sizeX;
-    private int sizeY;
+    /**
+     * The bound of the island. Used to check whether points are actually
+     * part of the island or not.
+     */
+    private Bounds bounds;
 
-    private HashMap<Coordinates, TransmitterTower> transmitterTowers;
-    private HashMap<Coordinates, ReceiverTower> receiverTowers;
-
-    private Coverage coverage;
+    /**
+     * Instead of storing a 2D grid with (potentially) a lot of wasted space,
+     * the transmitters and receivers are sparsely stored using two different
+     * maps where the key is a given Point.
+     */
+    private HashMap<Point, TransmitterTower> transmitterTowers;
+    private HashMap<Point, ReceiverTower> receiverTowers;
 
     public Island(int sizeX, int sizeY) {
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
-        transmitterTowers = new HashMap<Coordinates, TransmitterTower>();
-        receiverTowers = new HashMap<Coordinates, ReceiverTower>();
-        coverage = new Coverage();
+        bounds = new Bounds(sizeX, sizeY);
+        transmitterTowers = new HashMap<>();
+        receiverTowers = new HashMap<>();
     }
 
+    /**
+     * Get the bounds of the island
+     *
+     * @return The bounds of the island
+     */
+    public Bounds getBounds() {
+        return bounds;
+    }
+
+    /**
+     * Get a map of all transmitter towers on the island
+     *
+     * @return Map of transmitter towers
+     */
+    public HashMap<Point, TransmitterTower> getTransmitterTowers() {
+        return transmitterTowers;
+    }
+
+    /**
+     * Get a map of all receiver towers on the island
+     *
+     * @return Map of receiver towers
+     */
+    public HashMap<Point, ReceiverTower> getReceiverTowers() {
+        return receiverTowers;
+    }
+
+    /**
+     * Add transmitter tower to the island
+     *
+     * @param transmitterTower The transmitter tower
+     */
     public void addTransmitterTower(TransmitterTower transmitterTower) {
-        transmitterTowers.put(transmitterTower.getCoordinates(), transmitterTower);
-        updateCoverage(transmitterTower);
+        transmitterTowers.put(transmitterTower.getPoint(), transmitterTower);
     }
 
+    /**
+     * Add receiver tower to the island
+     *
+     * @param receiverTower The receiver tower
+     */
     public void addReceiverTower(ReceiverTower receiverTower) {
-        receiverTowers.put(receiverTower.getCoordinates(), receiverTower);
+        receiverTowers.put(receiverTower.getPoint(), receiverTower);
     }
 
+    /**
+     * Get the number of transmitter towers on the island
+     *
+     * @return The number of transmitter towers on the island
+     */
+    public int nbrOfTransmitterTowers() {
+        return receiverTowers.size();
+    }
+
+    /**
+     * Get the number of receiver towers on the island
+     *
+     * @return The number of receiver towers on the island
+     */
     public int nbrOfReceiverTowers() {
         return receiverTowers.size();
     }
 
-    public int nbrOfReceiverTowersWithCoverage() {
-        return receiverTowers.size() - receiverTowersWithoutCoverage().size();
+    /**
+     * Check equality between two islands
+     *
+     * @param o Other island
+     * @return Whether the two islands are the same
+     */
+    @Override
+    public boolean equals(Object o) {
+        return (o instanceof Island)
+                && (((Island) o).getReceiverTowers().equals(getReceiverTowers())
+                && ((Island) o).getTransmitterTowers().equals(getTransmitterTowers())
+                && ((Island) o).getBounds().equals(getBounds())
+        );
     }
 
-    public int nbrOfReceiverTowersWithoutCoverage() {
-        return receiverTowersWithoutCoverage().size();
-    }
-
-    private Set<ReceiverTower> receiverTowersWithoutCoverage() {
-        Set<ReceiverTower> receiveTowersWithoutCoverage  = new HashSet<ReceiverTower>();
-        for (Coordinates coordinates : receiverTowers.keySet()) {
-            if (!coverage.get(coordinates)) {
-                receiveTowersWithoutCoverage.add(receiverTowers.get(coordinates));
-            }
-        }
-        return receiveTowersWithoutCoverage;
-    }
-
-    private boolean isWithinBounds(Coordinates coordinates) {
-        return coordinates.getX() >= 0 && coordinates.getX() < sizeX && coordinates.getY() >= 0 && coordinates.getY() < sizeY;
-    }
-
-    private void updateCoverage(TransmitterTower transmitterTower) {
-        for (Coordinates coordinatesReached: transmitterTower.reaches()) {
-            if (isWithinBounds(coordinatesReached)) {
-                coverage.put(coordinatesReached, true);
-            }
-        }
-    }
-
-    public String toString() {
+    /**
+     * Return a string representation of the island as an ASCII grid with signal coverage marked
+     *
+     * @param coverage The signal coverage
+     * @return String representation of the island
+     */
+    public String toString(Coverage coverage) {
+        Optional<Coverage> optionalCoverage = Optional.ofNullable(coverage);
         StringBuilder sb = new StringBuilder();
-        for (int y = sizeX - 1; y >= 0; y--) {
-            for (int x = 0; x < this.sizeX; x++) {
-                Coordinates coordinates = new Coordinates(x, y);
-                if (receiverTowers.containsKey(coordinates)) {
-                    sb.append(String.format("  R%d", receiverTowers.get(coordinates).getId()));
-                } else if (transmitterTowers.containsKey(coordinates)) {
-                    sb.append(String.format("  T%d", transmitterTowers.get(coordinates).getId()));
-                } else if (coverage.get(coordinates)) {
+        for (int y = this.bounds.getSizeX() - 1; y >= 0; y--) {
+            for (int x = 0; x < this.bounds.getSizeX(); x++) {
+                Point point = new Point(x, y);
+                if (receiverTowers.containsKey(point)) {
+                    sb.append(String.format("  R%d", receiverTowers.get(point).getId()));
+                } else if (transmitterTowers.containsKey(point)) {
+                    sb.append(String.format("  T%d", transmitterTowers.get(point).getId()));
+                } else if (optionalCoverage.isPresent() && optionalCoverage.get().hasSignal(point)) {
                     sb.append("  * ");
-                }
-                else {
+                } else {
                     sb.append("  x ");
                 }
             }
             sb.append("\n");
         }
         return sb.toString();
+    }
+
+    /**
+     * Return a string representation of the island as an ASCII grid
+     *
+     * @return String representation of the island
+     */
+    @Override
+    public String toString() {
+       return toString(null);
     }
 
 }

@@ -1,44 +1,36 @@
 package info.lindblad.radio;
 
-import info.lindblad.radio.model.Coordinates;
-import info.lindblad.radio.model.Island;
-import info.lindblad.radio.model.ReceiverTower;
-import info.lindblad.radio.model.TransmitterTower;
+import info.lindblad.radio.model.*;
+import info.lindblad.radio.solver.IterativeSolver;
+import info.lindblad.radio.util.InputParser;
 
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Map;
+import java.util.Optional;
+
 
 public class App
 {
 
     public static void main( String[] args )
     {
-        Scanner scan = new Scanner(System.in);
-        int sizeX = scan.nextInt();
-        int sizeY = scan.nextInt();
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        Optional<Island> islandOptional = InputParser.parse(br);
 
-        Island island = new Island(sizeX, sizeY);
+        if (islandOptional.isPresent()) {
+            Island island = islandOptional.get();
 
-        // TODO(nlindblad): Improve this
-        boolean readingTransmitters = false;
-        while (scan.hasNextInt()) {
-            int id = scan.nextInt();
-            int x = scan.nextInt();
-            int y = scan.nextInt();
-            Coordinates coordinates = new Coordinates(x, y);
-            readingTransmitters = (id == 1) != readingTransmitters;
-            if (readingTransmitters) {
-                int power = scan.nextInt();
-                TransmitterTower transmitterTower = new TransmitterTower(id, coordinates, power);
-                island.addTransmitterTower(transmitterTower);
-            } else {
-                ReceiverTower receiverTower = new ReceiverTower(id, coordinates);
-                island.addReceiverTower(receiverTower);
+            int nbrOfReceiversWithCoverage = island.nbrOfReceiverTowers() - IterativeSolver.nbrOfReceiverTowersWithoutCoverage(island);
+
+            System.out.println(String.format("%d/%d", nbrOfReceiversWithCoverage, island.nbrOfReceiverTowers()));
+
+            for (Map.Entry<TransmitterTower, Integer> change : IterativeSolver.getRequiredTransmitterTowerChanges(island).entrySet()) {
+                System.out.println(String.format("%d %d", change.getKey().getId(), change.getValue()));
             }
+        } else {
+            System.err.println("Could not parse input and construct an island. Exiting.");
+            System.exit(1);
         }
-
-        System.out.println(island);
-
-        System.out.println(String.format("%d/%d", island.nbrOfReceiverTowersWithCoverage(), island.nbrOfReceiverTowers()));
-
     }
 }
