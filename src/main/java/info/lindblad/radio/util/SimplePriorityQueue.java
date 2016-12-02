@@ -41,7 +41,7 @@ public class SimplePriorityQueue<E> extends TreeMap<Integer, HashSet<E>> {
     }
 
     /**
-     * Poll the element with the largest priority number
+     * Poll the element with the smallest priority number
      *
      * @return Entry for the element with the smallest priority number
      */

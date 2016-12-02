@@ -48,7 +48,7 @@ public class IterativeSolver {
     }
 
     /**
-     * Get a priority queue comprised of the possible power level adjustments for the applicable transmitter towers
+     * Get a priority queue comprised of the possible power level adjustments for the applicable transmitter towers.
      *
      * @param coverage The coverage
      * @param receiverTowersWithoutCoverage The receiver towers without signal coverage
@@ -70,7 +70,7 @@ public class IterativeSolver {
 
     /**
      * Get the new adjusted power levels required for applicable transmitter towers in order to assure
-     * full signal coverage
+     * full signal coverage.
      *
      * @param island The island
      * @return A map of transmitter towers and their new required power level to assure full signal coverage
