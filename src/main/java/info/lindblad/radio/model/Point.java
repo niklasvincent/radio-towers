@@ -66,6 +66,22 @@ public class Point {
     }
 
     /**
+     * Sort a set of neighbouring points by distance
+     *
+     * @param startingPoint The starting point
+     * @param neighbourPoints The neighbour point
+     * @return The neighbouring points sorted by distance
+     */
+    public static SimplePriorityQueue<Point> neighboursByDistance(Point startingPoint, Set<Point> neighbourPoints) {
+        SimplePriorityQueue<Point> neighbourPointsByDistance = new SimplePriorityQueue<Point>();
+        for (Point candidatePoint : neighbourPoints) {
+            int distance = candidatePoint.distance(startingPoint);
+            neighbourPointsByDistance.put(distance, candidatePoint);
+        }
+        return neighbourPointsByDistance;
+    }
+
+    /**
      * Calculate the hash code for the point
      *
      * @return Hash code for the point
