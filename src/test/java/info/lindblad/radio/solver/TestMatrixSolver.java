@@ -35,6 +35,12 @@ public class TestMatrixSolver extends TestCase {
         return Optional.empty();
     }
 
+    private Island islandFromFile(String filename) {
+        Optional<BufferedReader> readerOptional = readFileFromResources(filename);
+        Optional<Island> islandOptional = InputParser.parse(readerOptional.orElseThrow(() -> new RuntimeException("Cannot load required test resource")));
+        return islandOptional.orElseThrow(() -> new RuntimeException("Cannot parse input file into island"));
+    }
+
     /**
      * Test solving the known case from the problem statement where receiver two is slightly out of range.
      * <p>
@@ -249,9 +255,7 @@ public class TestMatrixSolver extends TestCase {
      *
      */
     public void testRadialDistributionCase() {
-        Optional<BufferedReader> readerOptional = readFileFromResources("test-cases/input2.txt");
-        Optional<Island> islandOptional = InputParser.parse(readerOptional.orElseThrow(() -> new RuntimeException("Cannot load required test resource")));
-        Island island = islandOptional.orElseThrow(() -> new RuntimeException("Cannot parse input file into island"));
+        Island island = islandFromFile("test-cases/input2.txt");
 
         assertEquals(4, Solver.nbrOfReceiverTowersWithoutCoverage(island));
         assertEquals(4, island.getNbrOfReceiverTowers());
@@ -267,6 +271,12 @@ public class TestMatrixSolver extends TestCase {
             island.getTransmitterTowers().get(change.getKey().getPoint()).setPower(change.getValue());
         }
         assertEquals(0, Solver.nbrOfReceiverTowersWithoutCoverage(island));
+    }
+
+    public void testColliding() {
+        Island island = islandFromFile("test-cases/input3.txt");
+        MatrixSolver matrixSolver = new MatrixSolver();
+        matrixSolver.getRequiredTransmitterTowerChanges(island);
     }
 
 }
