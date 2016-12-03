@@ -5,14 +5,14 @@ import java.util.*;
 
 public class Permutations<T> {
 
-    private List<T> list;
+    private List<List<T>> permutations;
 
     public Permutations(List<T> list) {
-        this.list = list;
+        permutations = getPermutations(list);
     }
 
     public List<List<T>> getPermutations() {
-        return getPermutations(this.list);
+        return permutations;
     }
 
     private List<List<T>> getPermutations(List<T> list) {

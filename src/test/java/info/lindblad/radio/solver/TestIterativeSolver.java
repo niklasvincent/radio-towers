@@ -153,7 +153,7 @@ public class TestIterativeSolver extends TestCase {
         assertEquals(expectedRequiredTransmitterTowerChanges, requiredTransmitterTowerChanges);
 
         // Apply the suggested changes
-        for ( Map.Entry<TransmitterTower, Integer> change : requiredTransmitterTowerChanges.entrySet() ) {
+        for ( Map.Entry<TransmitterTower,    Integer> change : requiredTransmitterTowerChanges.entrySet() ) {
             island.getTransmitterTowers().get(change.getKey().getPoint()).setPower(change.getValue());
         }
         assertEquals(0, Solver.nbrOfReceiverTowersWithoutCoverage(island));
