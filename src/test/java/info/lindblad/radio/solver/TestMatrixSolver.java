@@ -4,14 +4,15 @@ import info.lindblad.radio.model.Island;
 import info.lindblad.radio.model.Point;
 import info.lindblad.radio.model.ReceiverTower;
 import info.lindblad.radio.model.TransmitterTower;
+import info.lindblad.radio.util.InputParser;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.*;
 
 public class TestMatrixSolver extends TestCase {
 
@@ -21,6 +22,17 @@ public class TestMatrixSolver extends TestCase {
 
     public static Test suite() {
         return new TestSuite(TestMatrixSolver.class);
+    }
+
+    private Optional<BufferedReader> readFileFromResources(String filename) {
+        ClassLoader classLoader = getClass().getClassLoader();
+        try {
+            FileReader fileReader = new FileReader(classLoader.getResource(filename).getFile());
+            return Optional.of(new BufferedReader(fileReader));
+        } catch (FileNotFoundException exception) {
+            System.err.println(String.format("No such file in resources '%s': %s", filename, exception));
+        }
+        return Optional.empty();
     }
 
     /**
@@ -151,13 +163,13 @@ public class TestMatrixSolver extends TestCase {
      * of the receiver towers, but a more efficient solution is to increase the power levels
      * of transmitter tower two and three by one each to achieve an overall power level increase of two.
      *
-     * *   T1  *   x   x   x   x
-     * *   *   *   x   x   x   x
-     * x   x   x   x   x   x   x
-     * x   x   x   x   x   x   x
-     * x   R1  x   x   x   R2  x
-     * *   *   *   x   *   *   *
-     * *   T2  *   x   *   T3  *
+     *  *   T1  *   x   x   x   x
+     *  *   *   *   x   x   x   x
+     *  x   x   x   x   x   x   x
+     *  x   x   x   x   x   x   x
+     *  x   R1  x   x   x   R2  x
+     *  *   *   *   x   *   *   *
+     *  *   T2  *   x   *   T3  *
      */
     public void testFavourableMultiChangeCase() {
         Island island = new Island(7, 7);
@@ -199,4 +211,64 @@ public class TestMatrixSolver extends TestCase {
         }
         assertEquals(0, Solver.nbrOfReceiverTowersWithoutCoverage(island));
     }
+
+    /**
+     * Test solving for a case where a transmitter in the center could provide signal coverage for all receivers.
+     *
+     * Each receiver has a transmitter closer to each of them, that would required an individual power level change
+     * of four to ensure all receiver towers have signal coverage.
+     *
+     * The middle transmitter tower, however, requires a power level of increase of five, adding up to a total of
+     * nine, in order to cover all of the receiver towers.
+     *
+     *   x   x   x   x   x   x   x   x   x   x   x   *   *   *   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   *   T3  *   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   *   *   *   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   x   R4  x   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     *   *   *   *   x   x   x   x   x   x   x   x   *   *   *   x   x   x   x   x   x   x   x   *   *   *
+     *   *   T4  *   x   x   x   R2  x   x   x   x   *   T1  *   x   x   x   x   R3  x   x   x   *   T5  *
+     *   *   *   *   x   x   x   x   x   x   x   x   *   *   *   x   x   x   x   x   x   x   x   *   *   *
+     *   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   x   R1  x   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   *   *   *   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   *   T2  *   x   x   x   x   x   x   x   x   x   x   x
+     *   x   x   x   x   x   x   x   x   x   x   x   *   *   *   x   x   x   x   x   x   x   x   x   x   x
+     *
+     */
+    public void testRadialDistributionCase() {
+        Optional<BufferedReader> readerOptional = readFileFromResources("test-cases/input2.txt");
+        Optional<Island> islandOptional = InputParser.parse(readerOptional.orElseThrow(() -> new RuntimeException("Cannot load required test resource")));
+        Island island = islandOptional.orElseThrow(() -> new RuntimeException("Cannot parse input file into island"));
+
+        assertEquals(4, Solver.nbrOfReceiverTowersWithoutCoverage(island));
+        assertEquals(4, island.getNbrOfReceiverTowers());
+
+        Map<TransmitterTower, Integer> expected = new HashMap<>();
+        expected.put(new TransmitterTower(1, new Point(12, 12), 1), 5);
+
+        MatrixSolver matrixSolver = new MatrixSolver();
+
+        Map<TransmitterTower, Integer> requiredTransmitterTowerChanges = matrixSolver.getRequiredTransmitterTowerChanges(island);
+        assertEquals(expected, requiredTransmitterTowerChanges);
+
+        // Apply the suggested changes
+        for (Map.Entry<TransmitterTower, Integer> change : requiredTransmitterTowerChanges.entrySet()) {
+            island.getTransmitterTowers().get(change.getKey().getPoint()).setPower(change.getValue());
+        }
+        assertEquals(0, Solver.nbrOfReceiverTowersWithoutCoverage(island));
+    }
+
 }
