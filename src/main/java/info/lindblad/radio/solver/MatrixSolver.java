@@ -49,19 +49,14 @@ public class MatrixSolver implements Solver {
         public int choose(int column, int row) {
             int chosenValue = matrix[row][column];
             newTransmitterTowerPowerLevels.putIfAbsent(transmitterTowers.get(row), new AtomicInteger());
-            newTransmitterTowerPowerLevels.get(transmitterTowers.get(row)).addAndGet(transmitterTowers.get(row).getPower() + chosenValue);
+            newTransmitterTowerPowerLevels.get(transmitterTowers.get(row)).addAndGet(chosenValue);
             for (int c = 0; c < nbrOfColumns; c++) {
                 matrix[row][c] = Math.max(0, matrix[row][c] - chosenValue);
             }
-//            System.out.println("Chose column = " + column + ", row = " + row);
-//            System.out.println(toString());
             return chosenValue;
         }
 
         public int getMinimumRow(int column) {
-            if (column == 0 ) {
-                return 0;
-            }
             int lowestValue = Integer.MAX_VALUE;
             int lowestValueIndex = -1;
             for (int row = 0; row < matrix.length; row++) {
@@ -76,7 +71,7 @@ public class MatrixSolver implements Solver {
         public Map<TransmitterTower, Integer> getNewTransmitterTowerPowerLevels() {
             Map<TransmitterTower, Integer> newTransmitterTowerPowerLevels= new HashMap<>();
             for (Map.Entry<TransmitterTower, AtomicInteger> entry : this.newTransmitterTowerPowerLevels.entrySet()) {
-                newTransmitterTowerPowerLevels.put(entry.getKey(), entry.getValue().intValue());
+                newTransmitterTowerPowerLevels.put(entry.getKey(), entry.getKey().getPower() + entry.getValue().intValue());
             }
             return newTransmitterTowerPowerLevels;
         }
@@ -110,28 +105,22 @@ public class MatrixSolver implements Solver {
 
         List<ReceiverTower> receiverTowersWithoutCoverage = new ArrayList<>(Solver.getReceiverTowersWithoutCoverage(island));
         List<List<ReceiverTower>> receiverTowersWithoutCoveragePermutations = new Permutations<>(receiverTowersWithoutCoverage).getPermutations();
-        List<List<TransmitterTower>> transmitterTowersPermutations = new Permutations<>(transmitterTowers).getPermutations();
 
         for (List<ReceiverTower> permutedReceiverTowersWithoutCoverage : receiverTowersWithoutCoveragePermutations) {
             nextTransmitterTowerPermutation:
-            for (List<TransmitterTower> permutedTransmitterTowers : transmitterTowersPermutations) {
+            for (int startingRow = 0; startingRow < transmitterTowers.size(); startingRow++) {
 
                 int totalPowerIncrease = 0;
+                Matrix matrix = new Matrix(transmitterTowers, permutedReceiverTowersWithoutCoverage);
 
-                Matrix matrix = new Matrix(permutedTransmitterTowers, permutedReceiverTowersWithoutCoverage);
+                totalPowerIncrease += matrix.choose(0, startingRow);
 
-//                System.out.println(">> New permutation");
-//                System.out.println(matrix);
-
-                for (int column = 0; column < matrix.nbrOfColumns; column++) {
+                for (int column = 1; column < matrix.nbrOfColumns; column++) {
                     int row = matrix.getMinimumRow(column);
                     totalPowerIncrease += matrix.choose(column, row);
                     if (totalPowerIncrease > minimalTotalPowerIncrease) {
                         continue nextTransmitterTowerPermutation;
                     }
-//                    System.out.println("row = " + row);
-//                    System.out.println("totalPowerIncrease = " + totalPowerIncrease);
-//                    System.out.println(matrix);
                 }
 
                 if (totalPowerIncrease < minimalTotalPowerIncrease) {
@@ -140,15 +129,8 @@ public class MatrixSolver implements Solver {
                     // Save state about which changes need to be made to transmitters!
                 }
 
-//            System.exit(0);
-
-//            findTotalPowerCost(matrix, 0);
-
             }
         }
-
-//        System.out.println("Optimal power level increase is " + minimalTotalPowerIncrease);
-//        System.out.println("Changes " + newTransmitterTowerPowerLevels);
 
         return newTransmitterTowerPowerLevels;
     }

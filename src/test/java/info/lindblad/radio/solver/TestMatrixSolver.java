@@ -219,7 +219,7 @@ public class TestMatrixSolver extends TestCase {
      * of four to ensure all receiver towers have signal coverage.
      *
      * The middle transmitter tower, however, requires a power level of increase of five, adding up to a total of
-     * nine, in order to cover all of the receiver towers.
+     * six, in order to cover all of the receiver towers.
      *
      *   x   x   x   x   x   x   x   x   x   x   x   *   *   *   x   x   x   x   x   x   x   x   x   x   x
      *   x   x   x   x   x   x   x   x   x   x   x   *   T3  *   x   x   x   x   x   x   x   x   x   x   x
@@ -256,16 +256,14 @@ public class TestMatrixSolver extends TestCase {
         assertEquals(4, Solver.nbrOfReceiverTowersWithoutCoverage(island));
         assertEquals(4, island.getNbrOfReceiverTowers());
 
-        Map<TransmitterTower, Integer> expected = new HashMap<>();
-        expected.put(new TransmitterTower(1, new Point(12, 12), 1), 5);
-
         MatrixSolver matrixSolver = new MatrixSolver();
 
         Map<TransmitterTower, Integer> requiredTransmitterTowerChanges = matrixSolver.getRequiredTransmitterTowerChanges(island);
-        assertEquals(expected, requiredTransmitterTowerChanges);
 
-        // Apply the suggested changes
+        // Apply the suggested change
         for (Map.Entry<TransmitterTower, Integer> change : requiredTransmitterTowerChanges.entrySet()) {
+            assertEquals(6, change.getValue().intValue());
+            assertTrue(new TransmitterTower(1, new Point(12, 12), 1).equals(change.getKey()));
             island.getTransmitterTowers().get(change.getKey().getPoint()).setPower(change.getValue());
         }
         assertEquals(0, Solver.nbrOfReceiverTowersWithoutCoverage(island));
