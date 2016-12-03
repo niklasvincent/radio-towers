@@ -75,7 +75,7 @@ public class Island {
      *
      * @return The number of transmitter towers on the island
      */
-    public int nbrOfTransmitterTowers() {
+    public int getNbrOfTransmitterTowers() {
         return receiverTowers.size();
     }
 
@@ -84,7 +84,7 @@ public class Island {
      *
      * @return The number of receiver towers on the island
      */
-    public int nbrOfReceiverTowers() {
+    public int getNbrOfReceiverTowers() {
         return receiverTowers.size();
     }
 
