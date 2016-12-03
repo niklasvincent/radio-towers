@@ -37,7 +37,7 @@ public class TestIterativeSolver extends TestCase {
         island.addTransmitterTower(new TransmitterTower(1, new Point(2, 2), 1));
         island.addReceiverTower(new ReceiverTower(1, new Point(0, 0)));
 
-        assertEquals(1, IterativeSolver.nbrOfReceiverTowersWithoutCoverage(island));
+        assertEquals(1, Solver.nbrOfReceiverTowersWithoutCoverage(island));
         assertEquals(1, island.nbrOfReceiverTowers());
     }
 
@@ -66,7 +66,7 @@ public class TestIterativeSolver extends TestCase {
         island.addReceiverTower(new ReceiverTower(2, new Point(8, 8)));
         island.addReceiverTower(new ReceiverTower(3, new Point(6, 5)));
 
-        assertEquals(1, IterativeSolver.nbrOfReceiverTowersWithoutCoverage(island));
+        assertEquals(1, Solver.nbrOfReceiverTowersWithoutCoverage(island));
         assertEquals(3, island.nbrOfReceiverTowers());
     }
 
@@ -100,7 +100,7 @@ public class TestIterativeSolver extends TestCase {
         island.addReceiverTower(new ReceiverTower(2, new Point(8, 8)));
         island.addReceiverTower(new ReceiverTower(3, new Point(6, 5)));
 
-        assertEquals(0, IterativeSolver.nbrOfReceiverTowersWithoutCoverage(island));
+        assertEquals(0, Solver.nbrOfReceiverTowersWithoutCoverage(island));
         assertEquals(3, island.nbrOfReceiverTowers());
     }
 
@@ -140,21 +140,23 @@ public class TestIterativeSolver extends TestCase {
         Set<ReceiverTower> expectedReceiverTowersWithoutCoverage = new HashSet<>();
         expectedReceiverTowersWithoutCoverage.add(receiverTowerTwo);
 
-        assertEquals(expectedReceiverTowersWithoutCoverage, IterativeSolver.getReceiverTowersWithoutCoverage(island));
-        assertEquals(1, IterativeSolver.nbrOfReceiverTowersWithoutCoverage(island));
+        assertEquals(expectedReceiverTowersWithoutCoverage, Solver.getReceiverTowersWithoutCoverage(island));
+        assertEquals(1, Solver.nbrOfReceiverTowersWithoutCoverage(island));
         assertEquals(3, island.nbrOfReceiverTowers());
 
         Map<TransmitterTower, Integer> expectedRequiredTransmitterTowerChanges = new HashMap<>();
         expectedRequiredTransmitterTowerChanges.put(transmitterTowerFour, 5);
 
-        Map<TransmitterTower, Integer> requiredTransmitterTowerChanges = IterativeSolver.getRequiredTransmitterTowerChanges(island);
+        IterativeSolver iterativeSolver = new IterativeSolver();
+
+        Map<TransmitterTower, Integer> requiredTransmitterTowerChanges = iterativeSolver.getRequiredTransmitterTowerChanges(island);
         assertEquals(expectedRequiredTransmitterTowerChanges, requiredTransmitterTowerChanges);
 
         // Apply the suggested changes
         for ( Map.Entry<TransmitterTower, Integer> change : requiredTransmitterTowerChanges.entrySet() ) {
             island.getTransmitterTowers().get(change.getKey().getPoint()).setPower(change.getValue());
         }
-        assertEquals(0, IterativeSolver.nbrOfReceiverTowersWithoutCoverage(island));
+        assertEquals(0, Solver.nbrOfReceiverTowersWithoutCoverage(island));
     }
 
     /**
@@ -205,21 +207,23 @@ public class TestIterativeSolver extends TestCase {
         expectedReceiverTowersWithoutCoverage.add(receiverTowerTwo);
         expectedReceiverTowersWithoutCoverage.add(receiverTowerThree);
 
-        assertEquals(expectedReceiverTowersWithoutCoverage, IterativeSolver.getReceiverTowersWithoutCoverage(island));
-        assertEquals(2, IterativeSolver.nbrOfReceiverTowersWithoutCoverage(island));
+        assertEquals(expectedReceiverTowersWithoutCoverage, Solver.getReceiverTowersWithoutCoverage(island));
+        assertEquals(2, Solver.nbrOfReceiverTowersWithoutCoverage(island));
         assertEquals(3, island.nbrOfReceiverTowers());
 
         Map<TransmitterTower, Integer> expected = new HashMap<>();
         expected.put(transmitterTowerFour, 3);
 
-        Map<TransmitterTower, Integer> requiredTransmitterTowerChanges = IterativeSolver.getRequiredTransmitterTowerChanges(island);
+        IterativeSolver iterativeSolver = new IterativeSolver();
+
+        Map<TransmitterTower, Integer> requiredTransmitterTowerChanges = iterativeSolver.getRequiredTransmitterTowerChanges(island);
         assertEquals(expected, requiredTransmitterTowerChanges);
 
         // Apply the suggested changes
         for ( Map.Entry<TransmitterTower, Integer> change : requiredTransmitterTowerChanges.entrySet() ) {
             island.getTransmitterTowers().get(change.getKey().getPoint()).setPower(change.getValue());
         }
-        assertEquals(0, IterativeSolver.nbrOfReceiverTowersWithoutCoverage(island));
+        assertEquals(0, Solver.nbrOfReceiverTowersWithoutCoverage(island));
     }
 
     /**
@@ -275,11 +279,13 @@ public class TestIterativeSolver extends TestCase {
         expectedReceiverTowersWithoutCoverage.add(receiverTowerTwo);
         expectedReceiverTowersWithoutCoverage.add(receiverTowerThree);
 
-        assertEquals(expectedReceiverTowersWithoutCoverage, IterativeSolver.getReceiverTowersWithoutCoverage(island));
-        assertEquals(2, IterativeSolver.nbrOfReceiverTowersWithoutCoverage(island));
+        assertEquals(expectedReceiverTowersWithoutCoverage, Solver.getReceiverTowersWithoutCoverage(island));
+        assertEquals(2, Solver.nbrOfReceiverTowersWithoutCoverage(island));
         assertEquals(3, island.nbrOfReceiverTowers());
 
-        Map<TransmitterTower, Integer> requiredTransmitterTowerChanges = IterativeSolver.getRequiredTransmitterTowerChanges(island);
+        IterativeSolver iterativeSolver = new IterativeSolver();
+
+        Map<TransmitterTower, Integer> requiredTransmitterTowerChanges = iterativeSolver.getRequiredTransmitterTowerChanges(island);
 
         // Only one change is expected and the new power level should be three
         assertEquals(1, requiredTransmitterTowerChanges.size());
@@ -290,7 +296,7 @@ public class TestIterativeSolver extends TestCase {
         for ( Map.Entry<TransmitterTower, Integer> change : requiredTransmitterTowerChanges.entrySet() ) {
             island.getTransmitterTowers().get(change.getKey().getPoint()).setPower(change.getValue());
         }
-        assertEquals(0, IterativeSolver.nbrOfReceiverTowersWithoutCoverage(island));
+        assertEquals(0, Solver.nbrOfReceiverTowersWithoutCoverage(island));
     }
 
     /**
@@ -330,22 +336,24 @@ public class TestIterativeSolver extends TestCase {
         expectedReceiverTowersWithoutCoverage.add(receiverTowerOne);
         expectedReceiverTowersWithoutCoverage.add(receiverTowerTwo);
 
-        assertEquals(expectedReceiverTowersWithoutCoverage, IterativeSolver.getReceiverTowersWithoutCoverage(island));
-        assertEquals(2, IterativeSolver.nbrOfReceiverTowersWithoutCoverage(island));
+        assertEquals(expectedReceiverTowersWithoutCoverage, Solver.getReceiverTowersWithoutCoverage(island));
+        assertEquals(2, Solver.nbrOfReceiverTowersWithoutCoverage(island));
         assertEquals(2, island.nbrOfReceiverTowers());
 
         Map<TransmitterTower, Integer> expected = new HashMap<>();
         expected.put(transmitterTowerTwo, 2);
         expected.put(transmitterTowerThree, 2);
 
-        Map<TransmitterTower, Integer> requiredTransmitterTowerChanges = IterativeSolver.getRequiredTransmitterTowerChanges(island);
+        IterativeSolver iterativeSolver = new IterativeSolver();
+
+        Map<TransmitterTower, Integer> requiredTransmitterTowerChanges = iterativeSolver.getRequiredTransmitterTowerChanges(island);
         assertEquals(expected, requiredTransmitterTowerChanges);
 
         // Apply the suggested changes
         for ( Map.Entry<TransmitterTower, Integer> change : requiredTransmitterTowerChanges.entrySet() ) {
             island.getTransmitterTowers().get(change.getKey().getPoint()).setPower(change.getValue());
         }
-        assertEquals(0, IterativeSolver.nbrOfReceiverTowersWithoutCoverage(island));
+        assertEquals(0, Solver.nbrOfReceiverTowersWithoutCoverage(island));
     }
 
 }

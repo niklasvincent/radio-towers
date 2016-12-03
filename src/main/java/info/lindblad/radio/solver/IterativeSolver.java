@@ -10,42 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class IterativeSolver {
-
-    /**
-     * Get a set of all receiver towers that are without signal coverage.
-     *
-     * @param coverage The coverage
-     * @param receiverTowers The receiver towers
-     * @return A set of receiver towers without signal coverage
-     */
-    public static Set<ReceiverTower> getReceiverTowersWithoutCoverage(Coverage coverage, HashMap<Point, ReceiverTower> receiverTowers) {
-        return receiverTowers.values().stream()
-                .filter(receiverTower -> !coverage.hasSignal(receiverTower.getPoint()))
-                .collect(Collectors.toSet());
-    }
-
-    /**
-     * Get a set of all receiver towers that are without signal coverage.
-     *
-     * @param island The island
-     * @return A set of receiver towers without signal coverage
-     */
-    public static Set<ReceiverTower> getReceiverTowersWithoutCoverage(Island island) {
-        Coverage coverage = new Coverage(island);
-        return getReceiverTowersWithoutCoverage(coverage, island.getReceiverTowers());
-    }
-
-    /**
-     * Get the number of receiver towers without coverage for a given island.
-     *
-     * @param island The island
-     * @return The number of receiver towers without coverage
-     */
-    public static int nbrOfReceiverTowersWithoutCoverage(Island island) {
-        Coverage coverage = new Coverage(island.getBounds(), island.getTransmitterTowers());
-        return getReceiverTowersWithoutCoverage(coverage, island.getReceiverTowers()).size();
-    }
+public class IterativeSolver implements Solver {
 
     /**
      * Get a priority queue comprised of the possible power level adjustments for the applicable transmitter towers.
@@ -75,7 +40,7 @@ public class IterativeSolver {
      * @param island The island
      * @return A map of transmitter towers and their new required power level to assure full signal coverage
      */
-    public static Map<TransmitterTower, Integer> getRequiredTransmitterTowerChanges(Island island) {
+    public Map<TransmitterTower, Integer> getRequiredTransmitterTowerChanges(Island island) {
         Map<TransmitterTower, Integer> newTransmitterTowerPowerLevels = new HashMap<>();
 
         // Since the state of the current transmitter towers are going to be mutated, we clone it to avoid mutating the island state
@@ -85,7 +50,7 @@ public class IterativeSolver {
         Coverage currentCoverage = new Coverage(island.getBounds(), currentTransmitterTowers);
 
         // Calculate which receiver towers are currently out of signal coverage
-        Set<ReceiverTower> receiverTowersWithoutCoverage = getReceiverTowersWithoutCoverage(currentCoverage, island.getReceiverTowers());
+        Set<ReceiverTower> receiverTowersWithoutCoverage = Solver.getReceiverTowersWithoutCoverage(currentCoverage, island.getReceiverTowers());
 
         // Iterate whilst there are still receiver towers without signal coverage
         while (receiverTowersWithoutCoverage.size() > 0) {
@@ -118,7 +83,7 @@ public class IterativeSolver {
 
             // Re-calculate coverage and number of receiver towers without signal coverage after this iteration
             currentCoverage = new Coverage(island.getBounds(), currentTransmitterTowers);
-            receiverTowersWithoutCoverage = getReceiverTowersWithoutCoverage(currentCoverage, island.getReceiverTowers());
+            receiverTowersWithoutCoverage = Solver.getReceiverTowersWithoutCoverage(currentCoverage, island.getReceiverTowers());
         }
         return newTransmitterTowerPowerLevels;
     }
