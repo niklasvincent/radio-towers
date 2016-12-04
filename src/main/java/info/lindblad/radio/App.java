@@ -9,8 +9,7 @@ import info.lindblad.radio.util.InputParser;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 
 public class App
@@ -19,15 +18,28 @@ public class App
     public static void main(String[] args)
     {
         /*
-          Attempt to parse input and construct an island.
+          Convert provided command line flags to a set.
          */
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        Optional<Island> islandOptional = InputParser.parse(br);
+        HashSet<String> optionFlags = new HashSet<>(Arrays.asList(args));
+
+        /*
+          Attempt to parse standard input and construct an island if the --stdin flag is set, otherwise
+          we read from a file called input.txt
+         */
+        Island island;
+        if (optionFlags.contains("--stdin")) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            island = InputParser.parse(br).orElseThrow(() -> new RuntimeException("Could not parse input and construct an island. Exiting."));
+        } else {
+            island = InputParser.islandFromFile(InputParser.DEFAULT_INPUT_FILENAME);
+        }
+
+        Optional<Island> islandOptional= Optional.ofNullable(island);
 
         if (islandOptional.isPresent()) {
-            Island island = islandOptional.get();
+            island = islandOptional.get();
 
-            if (args.length == 1 && args[0].equals("--visualise")) {
+            if (optionFlags.contains("--visualise")) {
                 System.out.println(island.toString(new Coverage(island)));
             }
 
@@ -47,7 +59,7 @@ public class App
                 System.out.println(String.format("%d %d", change.getKey().getId(), change.getValue()));
             }
         } else {
-            System.err.println("Could not parse input and construct an island. Exiting.");
+            System.err.println("No island provided. Exiting.");
             System.exit(1);
         }
     }

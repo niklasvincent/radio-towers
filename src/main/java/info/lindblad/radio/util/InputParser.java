@@ -21,6 +21,8 @@ import java.util.stream.Stream;
 
 public class InputParser {
 
+    public static final String DEFAULT_INPUT_FILENAME = "input.txt";
+
     private static final int ISLAND_DIMENSIONS_PARAMETER_SIZE = 2;
     private static final int TRANSMITTER_TOWER_PARAMETER_SIZE = 4;
     private static final int RECEIVER_TOWER_PARAMETER_SIZE = 3;
@@ -31,7 +33,7 @@ public class InputParser {
      * @param inputStream The InputStream
      * @return An Optional<Island> whose value depends on successful parsing
      */
-    public static Optional<Island> parse(Stream<String> inputStream) {
+    private static Optional<Island> parse(Stream<String> inputStream) {
         List<List<Integer>> input = inputStream
                 .map(InputParser::extractIntegerValues).collect(Collectors.toList());
 
@@ -105,6 +107,22 @@ public class InputParser {
     }
 
     /**
+     * Read a file from the file system
+     *
+     * @param filename The filename of the file
+     * @return An optional BufferedReader
+     */
+    private static Optional<BufferedReader> readFileFromFileSystem(String filename) {
+        try {
+            FileReader fileReader = new FileReader(filename);
+            return Optional.of(new BufferedReader(fileReader));
+        } catch (FileNotFoundException exception) {
+            System.err.println(String.format("No such file '%s': %s", filename, exception));
+        }
+        return Optional.empty();
+    }
+
+    /**
      * Read an island from a file within the class resources
      *
      * Useful for tests
@@ -114,6 +132,20 @@ public class InputParser {
      */
     public static Island islandFromResourceFile(String filename) {
         Optional<BufferedReader> readerOptional = readFileFromResources(filename);
+        Optional<Island> islandOptional = InputParser.parse(readerOptional.orElseThrow(() -> new RuntimeException("Cannot load required test resource")));
+        return islandOptional.orElseThrow(() -> new RuntimeException("Cannot parse input file into island"));
+    }
+
+    /**
+     * Read an island from a file within the class resources
+     *
+     * Useful for tests
+     *
+     * @param filename The full filename of the file within resources
+     * @return
+     */
+    public static Island islandFromFile(String filename) {
+        Optional<BufferedReader> readerOptional = readFileFromFileSystem(filename);
         Optional<Island> islandOptional = InputParser.parse(readerOptional.orElseThrow(() -> new RuntimeException("Cannot load required test resource")));
         return islandOptional.orElseThrow(() -> new RuntimeException("Cannot parse input file into island"));
     }

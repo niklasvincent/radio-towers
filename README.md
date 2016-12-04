@@ -27,14 +27,20 @@ Ensure you have the Java 8 SDK and Maven installed.
 The easiest way to run the application is to invoke Maven and create a packaged Jar file. This will also run all the unit tests as part of the build:
 
     $ mvn package
-    $ java -classpath target/radio-towers-1.0-SNAPSHOT.jar info.lindblad.radio.App < input.txt
+    $ java -classpath target/radio-towers-1.0-SNAPSHOT.jar info.lindblad.radio.App
 
 Example output:
 
     2/3
     4 5
 
+By default the application attempts to read the island configuration from a file named `input.txt` in the current directory.
+
 It is also possible to visualise the given island configuration using the `--visualise` flag:
+
+    $ java -classpath target/radio-towers-1.0-SNAPSHOT.jar info.lindblad.radio.App --visualise
+
+Example output:
 
 ```
 *   *   *   *   x   x   x   x   x   x
@@ -52,8 +58,45 @@ R1  *   *   *   x   x   x   x   x   x
 4 5
 ```
 
+If you want to read from standard input instead of the default `input.txt`, use the `--stdin` flag:
+
+    $ java -classpath target/radio-towers-1.0-SNAPSHOT.jar info.lindblad.radio.App --stdin < other-case.txt
+
+Example output:
+
+```
+x   x   x   x   x   x   x   x   x   x   x   *   *   *   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   *   T3  *   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   *   *   *   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   x   R4  x   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+*   *   *   x   x   x   x   x   x   x   x   *   *   *   x   x   x   x   x   x   x   x   *   *   *
+*   T4  *   x   x   x   R2  x   x   x   x   *   T1  *   x   x   x   x   R3  x   x   x   *   T5  *
+*   *   *   x   x   x   x   x   x   x   x   *   *   *   x   x   x   x   x   x   x   x   *   *   *
+x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   x   R1  x   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   *   *   *   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   *   T2  *   x   x   x   x   x   x   x   x   x   x   x
+x   x   x   x   x   x   x   x   x   x   x   *   *   *   x   x   x   x   x   x   x   x   x   x   x
+
+0/4
+1 6
+```
+
 ### Run the tests separately
 
 Run the tests using Maven:
 
-    $ mvn package
+    $ mvn test
