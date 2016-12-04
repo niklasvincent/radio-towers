@@ -10,10 +10,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MatrixSolver implements Solver {
 
-    private class Matrix {
+    public class Matrix {
+
+        private Integer totalPowerIncrease;
 
         private Map<TransmitterTower, AtomicInteger> newTransmitterTowerPowerLevels;
-
 
         private List<TransmitterTower> transmitterTowers;
         private List<ReceiverTower> receiverTowers;
@@ -27,7 +28,12 @@ public class MatrixSolver implements Solver {
             newTransmitterTowerPowerLevels = new HashMap<>();
             this.transmitterTowers = transmitterTowers;
             this.receiverTowers = receiverTowers;
+            this.totalPowerIncrease = 0;
             matrix = constructInitialMatrix();
+        }
+
+        public Matrix() {
+
         }
 
         private int[][] constructInitialMatrix() {
@@ -49,6 +55,7 @@ public class MatrixSolver implements Solver {
 
         public int choose(int column, int row) {
             int chosenValue = matrix[row][column];
+            totalPowerIncrease += chosenValue;
             newTransmitterTowerPowerLevels.putIfAbsent(transmitterTowers.get(row), new AtomicInteger());
             newTransmitterTowerPowerLevels.get(transmitterTowers.get(row)).addAndGet(chosenValue);
             for (int c = 0; c < nbrOfColumns; c++) {
@@ -73,6 +80,10 @@ public class MatrixSolver implements Solver {
             return newTransmitterTowerPowerLevels;
         }
 
+        public Integer getTotalPowerIncrease() {
+            return totalPowerIncrease;
+        }
+
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
@@ -91,22 +102,112 @@ public class MatrixSolver implements Solver {
             return sb.toString();
         }
 
+        public Matrix copy() {
+            // TODO(nlindblad) Clean this up
+            int [][] copiedMatrix = new int[matrix.length][];
+            for(int i = 0; i < matrix.length; i++)
+            {
+                int[] aMatrix = matrix[i];
+                int   aLength = aMatrix.length;
+                copiedMatrix[i] = new int[aLength];
+                System.arraycopy(aMatrix, 0, copiedMatrix[i], 0, aLength);
+            }
+            Matrix matrixCopy = new Matrix();
+            matrixCopy.nbrOfColumns = this.nbrOfColumns;
+            matrixCopy.nbrOfRows = this.nbrOfRows;
+            matrixCopy.transmitterTowers = this.transmitterTowers;
+            matrixCopy.receiverTowers = this.receiverTowers;
+            matrixCopy.totalPowerIncrease = this.totalPowerIncrease;
+            matrixCopy.newTransmitterTowerPowerLevels = this.newTransmitterTowerPowerLevels;
+            matrixCopy.matrix = copiedMatrix;
+
+            return matrixCopy;
+        }
+
     }
 
-    private static int solve(Matrix matrix, int startingRow, int knownMinimalTotalPowerIncrease) {
-        final int startingColumn = 0;
-        int totalPowerIncrease = 0;
+    public static int solve(Matrix matrix, int column, int row, int totalPowerIncrease) {
+        if (column == matrix.nbrOfColumns - 1) {
+            System.out.println("Base case!!!!");
+            return totalPowerIncrease + matrix.choose(column, row);
+        }
 
-        totalPowerIncrease += matrix.choose(startingColumn, startingRow);
+        SimplePriorityQueue<Integer> rowChoices = new SimplePriorityQueue<>();
 
-        for (int column = startingColumn + 1; column < matrix.nbrOfColumns; column++) {
-            List<Integer> minimumRows = matrix.getMinimumRows(column);
-            totalPowerIncrease += matrix.choose(column, minimumRows.get(0));
-            if (totalPowerIncrease > knownMinimalTotalPowerIncrease) {
-                return Integer.MAX_VALUE;
+        List<Integer> minimumRows = matrix.getMinimumRows(column);
+
+        if (minimumRows.size() == 1) {
+            rowChoices.put(0, minimumRows.get(0));
+        } else {
+            for (int minimumRow : matrix.getMinimumRows(column)) {
+                rowChoices.put(solve(matrix.copy(), column + 1, minimumRow, totalPowerIncrease), minimumRow);
             }
         }
-        return totalPowerIncrease;
+
+//        System.out.println("rowChoices = " + rowChoices);
+
+        return totalPowerIncrease + solve(matrix, column + 1, rowChoices.pollSmallest().getValue().iterator().next());
+    }
+
+    public static List<Matrix> findResultingMatrices(Matrix matrix, int column, int knownMinimalTotalPowerIncrease) {
+        List<Matrix> newResultingMatrix = new ArrayList<>();
+        List<Integer> minimumRowIndices = matrix.getMinimumRows(column);
+        if (minimumRowIndices.size() == 1) {
+            matrix.choose(column, minimumRowIndices.get(0));
+            if (matrix.getTotalPowerIncrease() < knownMinimalTotalPowerIncrease) {
+                newResultingMatrix.add(matrix);
+            }
+        } else {
+            for (int minimumRowIndex : minimumRowIndices) {
+                Matrix newMatrix = matrix.copy();
+                newMatrix.choose(column, minimumRowIndex);
+                if (matrix.getTotalPowerIncrease() < knownMinimalTotalPowerIncrease) {
+                    newResultingMatrix.add(newMatrix);
+                }
+            }
+        }
+        return newResultingMatrix;
+    }
+
+    public static int solve(Matrix matrix, int startingRow, int knownMinimalTotalPowerIncrease) {
+        final int startingColumn = 0;
+
+        // Make the first choice
+        matrix.choose(startingColumn, startingRow);
+
+        List<Matrix> resultingMatrices = new ArrayList<>();
+        resultingMatrices.add(matrix);
+
+        for (int column = startingColumn + 1; column < matrix.nbrOfColumns; column++) {
+            List<Matrix> newResultingMatrix = new ArrayList<>();
+            for (Matrix resultingMatrix : resultingMatrices) {
+                newResultingMatrix = findResultingMatrices(resultingMatrix, column, knownMinimalTotalPowerIncrease);
+            }
+            resultingMatrices = newResultingMatrix;
+        }
+
+        SimplePriorityQueue<Matrix> optimalMatrices = new SimplePriorityQueue<>();
+        for (Matrix finalResultingMatrix : resultingMatrices) {
+            optimalMatrices.put(finalResultingMatrix.getTotalPowerIncrease(), finalResultingMatrix);
+        }
+
+//        System.out.println("Finally, got: " + optimalMatrices.pollSmallest().getKey());
+
+//        for (int column = startingColumn + 1; column < matrix.nbrOfColumns; column++) {
+//            List<Integer> minimumRows = matrix.getMinimumRows(column);
+//            for (int minimumRow : minimumRows) {
+//                Matrix newMatrix = matrix.copy();
+//                int p = solve(newMatrix, column, minimumRow);
+//            }
+//            totalPowerIncrease += matrix.choose(column, minimumRows.get(0));
+//            if (totalPowerIncrease > knownMinimalTotalPowerIncrease) {
+//                return Integer.MAX_VALUE;
+//            }
+//        }
+        if (optimalMatrices.size() == 0) {
+            return Integer.MAX_VALUE;
+        }
+        return optimalMatrices.pollSmallest().getKey();
     }
 
     public Map<TransmitterTower, Integer> getRequiredTransmitterTowerChanges(Island island) {
@@ -120,7 +221,6 @@ public class MatrixSolver implements Solver {
         List<List<ReceiverTower>> receiverTowersWithoutCoveragePermutations = new Permutations<>(receiverTowersWithoutCoverage).getPermutations();
 
         for (List<ReceiverTower> permutedReceiverTowersWithoutCoverage : receiverTowersWithoutCoveragePermutations) {
-            nextTransmitterTowerPermutation:
             for (int startingRow = 0; startingRow < transmitterTowers.size(); startingRow++) {
 
                 Matrix matrix = new Matrix(transmitterTowers, permutedReceiverTowersWithoutCoverage);
