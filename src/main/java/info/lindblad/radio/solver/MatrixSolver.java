@@ -4,127 +4,11 @@ package info.lindblad.radio.solver;
 import info.lindblad.radio.model.*;
 import info.lindblad.radio.util.Permutations;
 import info.lindblad.radio.util.SimplePriorityQueue;
+import info.lindblad.radio.solver.model.Matrix;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class MatrixSolver implements Solver {
-
-    public class Matrix {
-
-        private Integer totalPowerIncrease;
-
-        private Map<TransmitterTower, AtomicInteger> newTransmitterTowerPowerLevels;
-
-        private List<TransmitterTower> transmitterTowers;
-        private List<ReceiverTower> receiverTowers;
-
-        private int nbrOfRows;
-        private int nbrOfColumns;
-
-        private int[][] matrix;
-
-        public Matrix(List<TransmitterTower> transmitterTowers, List<ReceiverTower> receiverTowers) {
-            newTransmitterTowerPowerLevels = new HashMap<>();
-            this.transmitterTowers = transmitterTowers;
-            this.receiverTowers = receiverTowers;
-            this.totalPowerIncrease = 0;
-            matrix = constructInitialMatrix();
-        }
-
-        public Matrix() {
-
-        }
-
-        private int[][] constructInitialMatrix() {
-            nbrOfRows = transmitterTowers.size();
-            nbrOfColumns = receiverTowers.size();
-
-            int[][] matrix = new int[nbrOfRows][nbrOfColumns];
-
-            for (int i = 0; i < transmitterTowers.size(); i++) {
-                for (int j = 0; j < receiverTowers.size(); j++) {
-                    TransmitterTower transmitterTower = transmitterTowers.get(i);
-                    ReceiverTower receiverTower = receiverTowers.get(j);
-                    int powerIncreaseRequired = receiverTower.getPoint().distance(transmitterTower.getPoint()) - transmitterTower.getPower();
-                    matrix[i][j] = powerIncreaseRequired;
-                }
-            }
-            return matrix;
-        }
-
-        public int choose(int column, int row) {
-            int chosenValue = matrix[row][column];
-            totalPowerIncrease += chosenValue;
-            newTransmitterTowerPowerLevels.putIfAbsent(transmitterTowers.get(row), new AtomicInteger());
-            newTransmitterTowerPowerLevels.get(transmitterTowers.get(row)).addAndGet(chosenValue);
-            for (int c = 0; c < nbrOfColumns; c++) {
-                matrix[row][c] = Math.max(0, matrix[row][c] - chosenValue);
-            }
-            return chosenValue;
-        }
-
-        public List<Integer> getMinimumRows(int column) {
-            SimplePriorityQueue<Integer> lowestValueIndices = new SimplePriorityQueue<>();
-            for (int row = 0; row < matrix.length; row++) {
-                lowestValueIndices.put(matrix[row][column], row);
-            }
-            return new ArrayList<>(lowestValueIndices.pollSmallest().getValue());
-        }
-
-        public Map<TransmitterTower, Integer> getNewTransmitterTowerPowerLevels() {
-            Map<TransmitterTower, Integer> newTransmitterTowerPowerLevels= new HashMap<>();
-            for (Map.Entry<TransmitterTower, AtomicInteger> entry : this.newTransmitterTowerPowerLevels.entrySet()) {
-                newTransmitterTowerPowerLevels.put(entry.getKey(), entry.getKey().getPower() + entry.getValue().intValue());
-            }
-            return newTransmitterTowerPowerLevels;
-        }
-
-        public Integer getTotalPowerIncrease() {
-            return totalPowerIncrease;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("    ");
-            for (ReceiverTower receiverTower : receiverTowers) {
-                sb.append(String.format(" R%d  ", receiverTower.getId()));
-            }
-            sb.append("\n");
-            for (int row = 0; row < matrix.length; row++) {
-                sb.append(String.format(" T%d ", transmitterTowers.get(row).getId()));
-                for (int column = 0; column < matrix[0].length; column++) {
-                    sb.append(String.format(" %-3d ", matrix[row][column]));
-                }
-                sb.append("\n");
-            }
-            return sb.toString();
-        }
-
-        public Matrix copy() {
-            // TODO(nlindblad) Clean this up
-            int [][] copiedMatrix = new int[matrix.length][];
-            for(int i = 0; i < matrix.length; i++)
-            {
-                int[] aMatrix = matrix[i];
-                int   aLength = aMatrix.length;
-                copiedMatrix[i] = new int[aLength];
-                System.arraycopy(aMatrix, 0, copiedMatrix[i], 0, aLength);
-            }
-            Matrix matrixCopy = new Matrix();
-            matrixCopy.nbrOfColumns = this.nbrOfColumns;
-            matrixCopy.nbrOfRows = this.nbrOfRows;
-            matrixCopy.transmitterTowers = this.transmitterTowers;
-            matrixCopy.receiverTowers = this.receiverTowers;
-            matrixCopy.totalPowerIncrease = this.totalPowerIncrease;
-            matrixCopy.newTransmitterTowerPowerLevels = this.newTransmitterTowerPowerLevels;
-            matrixCopy.matrix = copiedMatrix;
-
-            return matrixCopy;
-        }
-
-    }
 
     private static List<Matrix> findResultingMatrices(Matrix matrix, int column, int knownMinimalTotalPowerIncrease) {
         List<Matrix> newResultingMatrix = new ArrayList<>();
@@ -155,7 +39,7 @@ public class MatrixSolver implements Solver {
         List<Matrix> resultingMatrices = new ArrayList<>();
         resultingMatrices.add(matrix);
 
-        for (int column = startingColumn + 1; column < matrix.nbrOfColumns; column++) {
+        for (int column = startingColumn + 1; column < matrix.getNbrOfColumns(); column++) {
             List<Matrix> newResultingMatrix = new ArrayList<>();
             for (Matrix resultingMatrix : resultingMatrices) {
                 newResultingMatrix = findResultingMatrices(resultingMatrix, column, knownMinimalTotalPowerIncrease);
