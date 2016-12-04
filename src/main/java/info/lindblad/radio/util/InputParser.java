@@ -7,6 +7,8 @@ import info.lindblad.radio.model.ReceiverTower;
 import info.lindblad.radio.model.TransmitterTower;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -83,6 +85,37 @@ public class InputParser {
     public static Optional<Island> parse(String input) {
         String eol = System.getProperty("line.separator");
         return parse(input.split(eol));
+    }
+
+    /**
+     * Read a file from the class resources
+     *
+     * @param filename The full filename of the file within resources
+     * @return An optional BufferedReader
+     */
+    private static Optional<BufferedReader> readFileFromResources(String filename) {
+        ClassLoader classLoader = InputParser.class.getClassLoader();
+        try {
+            FileReader fileReader = new FileReader(classLoader.getResource(filename).getFile());
+            return Optional.of(new BufferedReader(fileReader));
+        } catch (FileNotFoundException exception) {
+            System.err.println(String.format("No such file in resources '%s': %s", filename, exception));
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Read an island from a file within the class resources
+     *
+     * Useful for tests
+     *
+     * @param filename The full filename of the file within resources
+     * @return
+     */
+    public static Island islandFromResourceFile(String filename) {
+        Optional<BufferedReader> readerOptional = readFileFromResources(filename);
+        Optional<Island> islandOptional = InputParser.parse(readerOptional.orElseThrow(() -> new RuntimeException("Cannot load required test resource")));
+        return islandOptional.orElseThrow(() -> new RuntimeException("Cannot parse input file into island"));
     }
 
     /**

@@ -21,28 +21,11 @@ public class TestMatrixSolver extends TestCase {
         return new TestSuite(TestMatrixSolver.class);
     }
 
-    private Optional<BufferedReader> readFileFromResources(String filename) {
-        ClassLoader classLoader = getClass().getClassLoader();
-        try {
-            FileReader fileReader = new FileReader(classLoader.getResource(filename).getFile());
-            return Optional.of(new BufferedReader(fileReader));
-        } catch (FileNotFoundException exception) {
-            System.err.println(String.format("No such file in resources '%s': %s", filename, exception));
-        }
-        return Optional.empty();
-    }
-
-    private Island islandFromFile(String filename) {
-        Optional<BufferedReader> readerOptional = readFileFromResources(filename);
-        Optional<Island> islandOptional = InputParser.parse(readerOptional.orElseThrow(() -> new RuntimeException("Cannot load required test resource")));
-        return islandOptional.orElseThrow(() -> new RuntimeException("Cannot parse input file into island"));
-    }
-
     /**
      * Test solving the known case from the problem statement where receiver two is slightly out of range.
-     * <p>
+     *
      * The solution is to increase the power level of transmitter tower 4 to 5.
-     * <p>
+     *
      * *   *   *   *   x   x   x   x   x   x
      * *   *   *   *   *   *   *   x   R2  x
      * *   *   *   *   *   *   *   x   x   x
@@ -53,6 +36,7 @@ public class TestMatrixSolver extends TestCase {
      * *   T3  *   *   *   *   *   x   x   x
      * R1  *   *   *   x   x   x   x   x   x
      * *   *   *   *   x   x   x   x   x   x
+     *
      */
     public void testSolvingKnownBadCoverage() {
         Island island = new Island(10, 10);
@@ -252,7 +236,7 @@ public class TestMatrixSolver extends TestCase {
      *
      */
     public void testRadialDistributionCase() {
-        Island island = islandFromFile("test-cases/input2.txt");
+        Island island = InputParser.islandFromResourceFile("test-cases/input2.txt");
 
         assertEquals(4, Solver.nbrOfReceiverTowersWithoutCoverage(island));
         assertEquals(4, island.getNbrOfReceiverTowers());
@@ -285,7 +269,7 @@ public class TestMatrixSolver extends TestCase {
      *
      */
     public void testCollidingMatrixValuesCase() {
-        Island island = islandFromFile("test-cases/input3.txt");
+        Island island = InputParser.islandFromResourceFile("test-cases/input3.txt");
         MatrixSolver matrixSolver = new MatrixSolver();
 
         Map<TransmitterTower, Integer> requiredTransmitterTowerChanges = matrixSolver.getRequiredTransmitterTowerChanges(island);
