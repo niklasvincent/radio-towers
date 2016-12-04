@@ -24,8 +24,6 @@ public class App
         if (islandOptional.isPresent()) {
             Island island = islandOptional.get();
 
-            System.out.println(island.toString(new Coverage(island)));
-
             MatrixSolver solver = new MatrixSolver();
 
             /*
@@ -38,7 +36,6 @@ public class App
                 Use the solver to calculate the required transmitter tower power changes that will give
                 all receiver towers signal coverage.
              */
-//            Solver solver = new IterativeSolver();
             for (Map.Entry<TransmitterTower, Integer> change : solver.getRequiredTransmitterTowerChanges(island).entrySet()) {
                 System.out.println(String.format("%d %d", change.getKey().getId(), change.getValue()));
             }
