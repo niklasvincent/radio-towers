@@ -4,7 +4,6 @@ import info.lindblad.radio.model.Island;
 import info.lindblad.radio.model.Point;
 import info.lindblad.radio.model.ReceiverTower;
 import info.lindblad.radio.model.TransmitterTower;
-import info.lindblad.radio.solver.IterativeSolver;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
