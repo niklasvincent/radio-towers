@@ -213,7 +213,7 @@ public class Matrix {
         matrixCopy.transmitterTowers = this.transmitterTowers;
         matrixCopy.receiverTowers = this.receiverTowers;
         matrixCopy.totalPowerIncrease = this.totalPowerIncrease;
-        matrixCopy.newTransmitterTowerPowerLevels = this.newTransmitterTowerPowerLevels;
+        matrixCopy.newTransmitterTowerPowerLevels = new HashMap<>(this.newTransmitterTowerPowerLevels);
         matrixCopy.matrix = copiedMatrix;
 
         return matrixCopy;
