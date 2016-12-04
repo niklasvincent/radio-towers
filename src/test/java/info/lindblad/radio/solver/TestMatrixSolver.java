@@ -1,9 +1,6 @@
 package info.lindblad.radio.solver;
 
-import info.lindblad.radio.model.Island;
-import info.lindblad.radio.model.Point;
-import info.lindblad.radio.model.ReceiverTower;
-import info.lindblad.radio.model.TransmitterTower;
+import info.lindblad.radio.model.*;
 import info.lindblad.radio.util.InputParser;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -118,49 +115,49 @@ public class TestMatrixSolver extends TestCase {
      *   *   *   *   *   x   x   x   x   x   x
      *
      */
-//    public void testMultiReceiverCase() {
-//        Island island = new Island(10, 10);
-//
-//        // Add transmitter towers
-//        island.addTransmitterTower(new TransmitterTower(1, new Point(2, 5), 1));
-//        island.addTransmitterTower(new TransmitterTower(2, new Point(0, 6), 3));
-//        island.addTransmitterTower(new TransmitterTower(3, new Point(1, 2), 2));
-//
-//        TransmitterTower transmitterTowerFour = new TransmitterTower(4, new Point(6, 8), 1);
-//        island.addTransmitterTower(transmitterTowerFour);
-//
-//        island.addTransmitterTower(new TransmitterTower(5, new Point(6, 3), 1));
-//
-//        // Add receiver towers
-//        island.addReceiverTower(new ReceiverTower(1, new Point(0, 1)));
-//        ReceiverTower receiverTowerTwo = new ReceiverTower(2, new Point(9, 8));
-//        ReceiverTower receiverTowerThree = new ReceiverTower(3, new Point(6, 5));
-//        island.addReceiverTower(receiverTowerTwo);
-//        island.addReceiverTower(receiverTowerThree);
-//
-//        // Create set of receiver towers that are expected to be out of signal coverage
-//        Set<ReceiverTower> expectedReceiverTowersWithoutCoverage = new HashSet<>();
-//        expectedReceiverTowersWithoutCoverage.add(receiverTowerTwo);
-//        expectedReceiverTowersWithoutCoverage.add(receiverTowerThree);
-//
-//        assertEquals(expectedReceiverTowersWithoutCoverage, Solver.getReceiverTowersWithoutCoverage(island));
-//        assertEquals(2, Solver.nbrOfReceiverTowersWithoutCoverage(island));
-//        assertEquals(3, island.getNbrOfReceiverTowers());
-//
-//        Map<TransmitterTower, Integer> expected = new HashMap<>();
-//        expected.put(transmitterTowerFour, 3);
-//
-//        MatrixSolver matrixSolver = new MatrixSolver();
-//
-//        Map<TransmitterTower, Integer> requiredTransmitterTowerChanges = matrixSolver.getRequiredTransmitterTowerChanges(island);
-//        assertEquals(expected, requiredTransmitterTowerChanges);
-//
-//        // Apply the suggested changes
-//        for ( Map.Entry<TransmitterTower, Integer> change : requiredTransmitterTowerChanges.entrySet() ) {
-//            island.getTransmitterTowers().get(change.getKey().getPoint()).setPower(change.getValue());
-//        }
-//        assertEquals(0, Solver.nbrOfReceiverTowersWithoutCoverage(island));
-//    }
+    public void testMultiReceiverCase() {
+        Island island = new Island(10, 10);
+
+        // Add transmitter towers
+        island.addTransmitterTower(new TransmitterTower(1, new Point(2, 5), 1));
+        island.addTransmitterTower(new TransmitterTower(2, new Point(0, 6), 3));
+        island.addTransmitterTower(new TransmitterTower(3, new Point(1, 2), 2));
+
+        TransmitterTower transmitterTowerFour = new TransmitterTower(4, new Point(6, 8), 1);
+        island.addTransmitterTower(transmitterTowerFour);
+
+        island.addTransmitterTower(new TransmitterTower(5, new Point(6, 3), 1));
+
+        // Add receiver towers
+        island.addReceiverTower(new ReceiverTower(1, new Point(0, 1)));
+        ReceiverTower receiverTowerTwo = new ReceiverTower(2, new Point(9, 8));
+        ReceiverTower receiverTowerThree = new ReceiverTower(3, new Point(6, 5));
+        island.addReceiverTower(receiverTowerTwo);
+        island.addReceiverTower(receiverTowerThree);
+
+        // Create set of receiver towers that are expected to be out of signal coverage
+        Set<ReceiverTower> expectedReceiverTowersWithoutCoverage = new HashSet<>();
+        expectedReceiverTowersWithoutCoverage.add(receiverTowerTwo);
+        expectedReceiverTowersWithoutCoverage.add(receiverTowerThree);
+
+        assertEquals(expectedReceiverTowersWithoutCoverage, Solver.getReceiverTowersWithoutCoverage(island));
+        assertEquals(2, Solver.nbrOfReceiverTowersWithoutCoverage(island));
+        assertEquals(3, island.getNbrOfReceiverTowers());
+
+        Map<TransmitterTower, Integer> expected = new HashMap<>();
+        expected.put(transmitterTowerFour, 3);
+
+        MatrixSolver matrixSolver = new MatrixSolver();
+
+        Map<TransmitterTower, Integer> requiredTransmitterTowerChanges = matrixSolver.getRequiredTransmitterTowerChanges(island);
+        assertEquals(expected, requiredTransmitterTowerChanges);
+
+        // Apply the suggested changes
+        for ( Map.Entry<TransmitterTower, Integer> change : requiredTransmitterTowerChanges.entrySet() ) {
+            island.getTransmitterTowers().get(change.getKey().getPoint()).setPower(change.getValue());
+        }
+        assertEquals(0, Solver.nbrOfReceiverTowersWithoutCoverage(island));
+    }
 
     /**
      * Test solving for a case where receiver one and two are both out of range.
@@ -273,10 +270,32 @@ public class TestMatrixSolver extends TestCase {
         assertEquals(0, Solver.nbrOfReceiverTowersWithoutCoverage(island));
     }
 
-    public void testColliding() {
+
+    /**
+     * Test an island that is 39 by 39 with 6 transmitters and 8 receivers.
+     *
+     * This test case is important, because the resulting matrix representation will
+     * eventually end up having two or more minimal values in a given column, which
+     * means the solver needs to branch out and investigate each of those cases and then
+     * combine the results.
+     *
+     * The run time is considerably higher than the other test cases, due to the fact that
+     * the number of matrices iterated is proportional to n!, where n is the number of receivers
+     * out of signal coverage.
+     *
+     */
+    public void testCollidingMatrixValuesCase() {
         Island island = islandFromFile("test-cases/input3.txt");
         MatrixSolver matrixSolver = new MatrixSolver();
-        matrixSolver.getRequiredTransmitterTowerChanges(island);
+
+        Map<TransmitterTower, Integer> requiredTransmitterTowerChanges = matrixSolver.getRequiredTransmitterTowerChanges(island);
+
+        // Apply the suggested change
+        for (Map.Entry<TransmitterTower, Integer> change : requiredTransmitterTowerChanges.entrySet()) {
+            island.getTransmitterTowers().get(change.getKey().getPoint()).setPower(change.getValue());
+        }
+
+        assertEquals(0, Solver.nbrOfReceiverTowersWithoutCoverage(island));
     }
 
 }
