@@ -3,6 +3,7 @@ package info.lindblad.radio.solver;
 
 import info.lindblad.radio.model.*;
 import info.lindblad.radio.util.Permutations;
+import info.lindblad.radio.util.SimplePriorityQueue;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -56,16 +57,12 @@ public class MatrixSolver implements Solver {
             return chosenValue;
         }
 
-        public int getMinimumRow(int column) {
-            int lowestValue = Integer.MAX_VALUE;
-            int lowestValueIndex = -1;
+        public List<Integer> getMinimumRows(int column) {
+            SimplePriorityQueue<Integer> lowestValueIndices = new SimplePriorityQueue<>();
             for (int row = 0; row < matrix.length; row++) {
-                if (lowestValue > matrix[row][column]) {
-                    lowestValue = matrix[row][column];
-                    lowestValueIndex = row;
-                }
+                lowestValueIndices.put(matrix[row][column], row);
             }
-            return lowestValueIndex;
+            return new ArrayList<>(lowestValueIndices.pollSmallest().getValue());
         }
 
         public Map<TransmitterTower, Integer> getNewTransmitterTowerPowerLevels() {
@@ -96,6 +93,22 @@ public class MatrixSolver implements Solver {
 
     }
 
+    private static int solve(Matrix matrix, int startingRow, int knownMinimalTotalPowerIncrease) {
+        final int startingColumn = 0;
+        int totalPowerIncrease = 0;
+
+        totalPowerIncrease += matrix.choose(startingColumn, startingRow);
+
+        for (int column = startingColumn + 1; column < matrix.nbrOfColumns; column++) {
+            List<Integer> minimumRows = matrix.getMinimumRows(column);
+            totalPowerIncrease += matrix.choose(column, minimumRows.get(0));
+            if (totalPowerIncrease > knownMinimalTotalPowerIncrease) {
+                return Integer.MAX_VALUE;
+            }
+        }
+        return totalPowerIncrease;
+    }
+
     public Map<TransmitterTower, Integer> getRequiredTransmitterTowerChanges(Island island) {
         int minimalTotalPowerIncrease = Integer.MAX_VALUE;
 
@@ -110,23 +123,12 @@ public class MatrixSolver implements Solver {
             nextTransmitterTowerPermutation:
             for (int startingRow = 0; startingRow < transmitterTowers.size(); startingRow++) {
 
-                int totalPowerIncrease = 0;
                 Matrix matrix = new Matrix(transmitterTowers, permutedReceiverTowersWithoutCoverage);
-
-                totalPowerIncrease += matrix.choose(0, startingRow);
-
-                for (int column = 1; column < matrix.nbrOfColumns; column++) {
-                    int row = matrix.getMinimumRow(column);
-                    totalPowerIncrease += matrix.choose(column, row);
-                    if (totalPowerIncrease > minimalTotalPowerIncrease) {
-                        continue nextTransmitterTowerPermutation;
-                    }
-                }
+                int totalPowerIncrease = solve(matrix, startingRow, minimalTotalPowerIncrease);
 
                 if (totalPowerIncrease < minimalTotalPowerIncrease) {
                     minimalTotalPowerIncrease = totalPowerIncrease;
                     newTransmitterTowerPowerLevels = matrix.getNewTransmitterTowerPowerLevels();
-                    // Save state about which changes need to be made to transmitters!
                 }
 
             }
