@@ -1,7 +1,10 @@
 package info.lindblad.radio;
 
-import info.lindblad.radio.model.*;
-import info.lindblad.radio.solver.*;
+import info.lindblad.radio.model.Coverage;
+import info.lindblad.radio.model.Island;
+import info.lindblad.radio.model.TransmitterTower;
+import info.lindblad.radio.solver.MatrixSolver;
+import info.lindblad.radio.solver.Solver;
 import info.lindblad.radio.util.InputParser;
 
 import java.io.BufferedReader;
@@ -13,7 +16,7 @@ import java.util.Optional;
 public class App
 {
 
-    public static void main( String[] args )
+    public static void main(String[] args)
     {
         /*
           Attempt to parse input and construct an island.
@@ -23,6 +26,10 @@ public class App
 
         if (islandOptional.isPresent()) {
             Island island = islandOptional.get();
+
+            if (args.length == 1 && args[0].equals("--visualise")) {
+                System.out.println(island.toString(new Coverage(island)));
+            }
 
             MatrixSolver solver = new MatrixSolver();
 
