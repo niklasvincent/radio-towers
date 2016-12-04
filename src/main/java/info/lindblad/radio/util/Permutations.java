@@ -10,9 +10,10 @@ public class Permutations<T> {
     /**
      * Create a new list of permuted versions of the original list
      *
-     * @param list The list to create permutations of
+     * @param originalList The list to create permutations of
      */
-    public Permutations(List<T> list) {
+    public Permutations(List<T> originalList) {
+        List<T> list = new ArrayList<>(originalList);
         permutations = getPermutations(list);
     }
 
