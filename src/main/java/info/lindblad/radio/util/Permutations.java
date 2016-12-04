@@ -7,14 +7,30 @@ public class Permutations<T> {
 
     private List<List<T>> permutations;
 
+    /**
+     * Create a new list of permuted versions of the original list
+     *
+     * @param list The list to create permutations of
+     */
     public Permutations(List<T> list) {
         permutations = getPermutations(list);
     }
 
+    /**
+     * Get the list of permuted versions of the original list
+     *
+     * @return List of permuted versions of the list
+     */
     public List<List<T>> getPermutations() {
         return permutations;
     }
 
+    /**
+     * Generate permutations of the provided list
+     *
+     * @param list The list to create permutations of
+     * @return List of permuted versions of the list
+     */
     private List<List<T>> getPermutations(List<T> list) {
         List<List<T>> result = new ArrayList<>();
 
