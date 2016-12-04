@@ -1,15 +1,19 @@
 package info.lindblad.radio.model;
 
 
-import info.lindblad.radio.model.Point;
-
 public class Bounds {
 
     private int sizeX;
     private int sizeY;
 
     public Bounds(int sizeX, int sizeY) {
+        if (sizeX < 0) {
+            throw new IllegalArgumentException(String.format("X size must be a positive integer, got %d", sizeX));
+        }
         this.sizeX = sizeX;
+        if (sizeY < 0) {
+            throw new IllegalArgumentException(String.format("Y size must be a positive integer, got %d", sizeY));
+        }
         this.sizeY = sizeY;
     }
 

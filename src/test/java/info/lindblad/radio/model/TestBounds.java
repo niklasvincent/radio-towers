@@ -36,4 +36,28 @@ public class TestBounds extends TestCase {
         assertFalse(bounds.contains(outsidePoint));
     }
 
+    /**
+     * Test that providing a negative X size results in an exception
+     */
+    public void testIllegalXSize() {
+        try {
+            new Bounds(-1, 1);
+            fail("Expected an IllegalArgumentException to be thrown");
+        } catch (IllegalArgumentException illegalArgumentException) {
+            return;
+        }
+    }
+
+    /**
+     * Test that providing a negative Y size results in an exception
+     */
+    public void testIllegalYSize() {
+        try {
+            new Bounds(1, -1);
+            fail("Expected an IllegalArgumentException to be thrown");
+        } catch (IllegalArgumentException illegalArgumentException) {
+            return;
+        }
+    }
+
 }

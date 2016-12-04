@@ -1,6 +1,5 @@
 package info.lindblad.radio.model;
 
-import info.lindblad.radio.util.SimplePriorityQueue;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -19,7 +18,6 @@ public class TestPoint extends TestCase {
     {
         return new TestSuite( TestPoint.class );
     }
-
 
     /**
      * Test that two points with the same coordinates are equal
@@ -79,5 +77,29 @@ public class TestPoint extends TestCase {
         Set<Point> expected = new HashSet<>();
         expected.add(new Point(3, 3));
         assertEquals(expected, Point.closestNeighbours(startingPoint, nearbyPoints));
+    }
+
+    /**
+     * Test that providing a negative X coordinate results in an exception
+     */
+    public void testIllegalXCoordinate() {
+        try {
+            new Point(-1, 0);
+            fail("Expected an IllegalArgumentException to be thrown");
+        } catch (IllegalArgumentException illegalArgumentException) {
+            return;
+        }
+    }
+
+    /**
+     * Test that providing a negative Y coordinate results in an exception
+     */
+    public void testIllegalYCoordinate() {
+        try {
+            new Point(0, -1);
+            fail("Expected an IllegalArgumentException to be thrown");
+        } catch (IllegalArgumentException illegalArgumentException) {
+            return;
+        }
     }
 }

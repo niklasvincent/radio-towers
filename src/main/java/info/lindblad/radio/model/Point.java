@@ -13,6 +13,12 @@ public class Point {
     private int y;
 
     public Point(int x, int y) {
+        if (x < 0) {
+            throw new IllegalArgumentException(String.format("X coordinate cannot be negative, got %d", x));
+        }
+        if (y < 0) {
+            throw new IllegalArgumentException(String.format("Y coordinate cannot be negative, got %d", y));
+        }
         this.x = x;
         this.y = y;
     }
