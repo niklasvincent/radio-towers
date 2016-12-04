@@ -29,6 +29,29 @@ The easiest way to run the application is to invoke Maven and create a packaged 
     $ mvn package
     $ java -classpath target/radio-towers-1.0-SNAPSHOT.jar info.lindblad.radio.App < input.txt
 
+Example output:
+
+    2/3
+    4 5
+
+It is also possible to visualise the given island configuration using the `--visualise` flag:
+
+```
+*   *   *   *   x   x   x   x   x   x
+*   *   *   *   *   *   *   x   R2  x
+*   *   *   *   *   *   *   x   x   x
+T2  *   *   *   *   *   *   x   x   x
+*   *   T1  T4  *   *   R3  x   x   x
+*   *   *   *   *   *   *   x   x   x
+*   *   *   *   *   *   *   x   x   x
+*   T3  *   *   *   *   *   x   x   x
+R1  *   *   *   x   x   x   x   x   x
+*   *   *   *   x   x   x   x   x   x
+
+2/3
+4 5
+```
+
 ### Run the tests separately
 
 Run the tests using Maven:
