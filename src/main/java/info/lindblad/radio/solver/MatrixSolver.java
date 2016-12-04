@@ -126,30 +126,7 @@ public class MatrixSolver implements Solver {
 
     }
 
-    public static int solve(Matrix matrix, int column, int row, int totalPowerIncrease) {
-        if (column == matrix.nbrOfColumns - 1) {
-            System.out.println("Base case!!!!");
-            return totalPowerIncrease + matrix.choose(column, row);
-        }
-
-        SimplePriorityQueue<Integer> rowChoices = new SimplePriorityQueue<>();
-
-        List<Integer> minimumRows = matrix.getMinimumRows(column);
-
-        if (minimumRows.size() == 1) {
-            rowChoices.put(0, minimumRows.get(0));
-        } else {
-            for (int minimumRow : matrix.getMinimumRows(column)) {
-                rowChoices.put(solve(matrix.copy(), column + 1, minimumRow, totalPowerIncrease), minimumRow);
-            }
-        }
-
-//        System.out.println("rowChoices = " + rowChoices);
-
-        return totalPowerIncrease + solve(matrix, column + 1, rowChoices.pollSmallest().getValue().iterator().next());
-    }
-
-    public static List<Matrix> findResultingMatrices(Matrix matrix, int column, int knownMinimalTotalPowerIncrease) {
+    private static List<Matrix> findResultingMatrices(Matrix matrix, int column, int knownMinimalTotalPowerIncrease) {
         List<Matrix> newResultingMatrix = new ArrayList<>();
         List<Integer> minimumRowIndices = matrix.getMinimumRows(column);
         if (minimumRowIndices.size() == 1) {
@@ -169,7 +146,7 @@ public class MatrixSolver implements Solver {
         return newResultingMatrix;
     }
 
-    public static int solve(Matrix matrix, int startingRow, int knownMinimalTotalPowerIncrease) {
+    private static int solve(Matrix matrix, int startingRow, int knownMinimalTotalPowerIncrease) {
         final int startingColumn = 0;
 
         // Make the first choice
@@ -191,19 +168,6 @@ public class MatrixSolver implements Solver {
             optimalMatrices.put(finalResultingMatrix.getTotalPowerIncrease(), finalResultingMatrix);
         }
 
-//        System.out.println("Finally, got: " + optimalMatrices.pollSmallest().getKey());
-
-//        for (int column = startingColumn + 1; column < matrix.nbrOfColumns; column++) {
-//            List<Integer> minimumRows = matrix.getMinimumRows(column);
-//            for (int minimumRow : minimumRows) {
-//                Matrix newMatrix = matrix.copy();
-//                int p = solve(newMatrix, column, minimumRow);
-//            }
-//            totalPowerIncrease += matrix.choose(column, minimumRows.get(0));
-//            if (totalPowerIncrease > knownMinimalTotalPowerIncrease) {
-//                return Integer.MAX_VALUE;
-//            }
-//        }
         if (optimalMatrices.size() == 0) {
             return Integer.MAX_VALUE;
         }
