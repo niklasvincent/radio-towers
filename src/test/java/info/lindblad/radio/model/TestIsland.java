@@ -24,7 +24,7 @@ public class TestIsland extends TestCase  {
         island.addTransmitterTower(new TransmitterTower(1, new Point(2, 2), 3));
         island.addReceiverTower(new ReceiverTower(1, new Point(0, 0)));
 
-        assertEquals(island.nbrOfReceiverTowers(), 1);
-        assertEquals(island.nbrOfTransmitterTowers(), 1);
+        assertEquals(island.getNbrOfReceiverTowers(), 1);
+        assertEquals(island.getNbrOfTransmitterTowers(), 1);
     }
 }

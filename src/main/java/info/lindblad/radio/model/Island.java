@@ -75,7 +75,7 @@ public class Island {
      *
      * @return The number of transmitter towers on the island
      */
-    public int nbrOfTransmitterTowers() {
+    public int getNbrOfTransmitterTowers() {
         return receiverTowers.size();
     }
 
@@ -84,8 +84,29 @@ public class Island {
      *
      * @return The number of receiver towers on the island
      */
-    public int nbrOfReceiverTowers() {
+    public int getNbrOfReceiverTowers() {
         return receiverTowers.size();
+    }
+
+    public String serialise() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%d %d\n", bounds.getSizeX(), bounds.getSizeY()));
+        for (TransmitterTower transmitterTower : getTransmitterTowers().values()) {
+            sb.append(String.format(
+                    "%d %d %d %d\n",
+                    transmitterTower.getId(),
+                    transmitterTower.getPoint().getX(),
+                    transmitterTower.getPoint().getY(),
+                    transmitterTower.getPower()));
+        }
+        for (ReceiverTower receiverTower : getReceiverTowers().values()) {
+            sb.append(String.format(
+                    "%d %d %d\n",
+                    receiverTower.getId(),
+                    receiverTower.getPoint().getX(),
+                    receiverTower.getPoint().getY()));
+        }
+        return sb.toString();
     }
 
     /**
