@@ -9,7 +9,8 @@ import info.lindblad.radio.solver.model.Matrix;
 import java.util.*;
 
 /**
- * This solver finds the minimal overall power level increases for each transmitter tower for a given island.
+ * This solver finds the minimal overall power level increases required, specified by the new total power level for each
+ * transmitter tower, for a given island in order to ensure that all receiver towers have signal coverage.
  *
  * The basis of the solver is to represent each transmitter/receiver configuration as a matrix. Each row in the
  * matrix corresponds to a transmitter tower and each column corresponds to a receiver tower.
@@ -26,13 +27,13 @@ import java.util.*;
  *  T2  10   4    10   16
  *  T5  4    10   16   10
  *
- * Since adjusting the power level of a transmitter will inevitably change the signal coverage for the rest of the island,
+ * Since adjusting the power level of a transmitter will change the signal coverage for the rest of the island,
  * the order in which changes are evaluated matters. In order to completely exhaust the possible search space, the list of
  * receiver towers without signal coverage is turned into a list of all permuted versions of itself. This assures that
  * all possible chains of changes are tested, e.g. R1 -> R2 -> R3 -> R4, R1 -> R3 -> R4 -> R2, etc.
  *
- * Similarly, each iteration for the same permuted list of receiver towers has a different starting row, in order to make
- * sure that all possible initial transmitter changes are evaluated.
+ * Similarly, as we go through each matrix we also have to vary the initial row we start with, in order to make sure each
+ * receiver tower permutation is tested with each individual transmitter tower as the starting point.
  *
  * This means that a total of n! x m matrices will be evaluated, where n is the number of receiver towers without signal
  * coverage and m is the number of transmitter towers on the island. These are our starting matrices.
@@ -70,8 +71,23 @@ import java.util.*;
  *
  * If there are multiple minimal values in a column, they all have to be evaluated.
  *
- * To achieve this, at the beginning of the evaluation of each matrix, a list holding all matrices that need further
- * evaluation is constructed and the initial matrix is added.
+ * For example, if the following matrix is evaluated and we pick (0, 0) initially:
+ *
+ *      R1   R2   R3
+ *  T1  5    8    10
+ *  T2  7    3     4
+ *
+ *  It will give rise to the following matrix:
+ *
+ *      R1   R2   R3
+ *  T1  0    3    5
+ *  T2  7    3    4
+ *
+ *  In column two, there are now two rows that have the minimal value and depending on which one we choose our resulting
+ *  overall power increase will be either 9 or 12.
+ *
+ * To take this into account, at the beginning of the evaluation of each matrix, a list holding all matrices that need
+ * further evaluation is constructed and the initial matrix is added.
  *
  * As the columns in the matrix are traversed left to right evaluating each column gives rise to one or more new matrices
  * that need to be further evaluated. These matrices are all added to the list.
@@ -186,6 +202,8 @@ public class MatrixSolver implements Solver {
             }
         } else {
             for (int minimumRowIndex : minimumRowIndices) {
+                // Branch out by making a deep copy of the matrix, which allows it to be
+                // evaluated independently.
                 Matrix newMatrix = matrix.copy();
                 newMatrix.choose(column, minimumRowIndex);
                 if (matrix.getTotalPowerIncrease() < knownMinimalTotalPowerIncrease) {
