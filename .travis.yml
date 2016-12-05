@@ -1,9 +1,25 @@
 language: java
+
 jdk:
   - oraclejdk8
+
 sudo: false
+
+env:
+  global:
+    secure: "LLLBQtXCFwZBhwCbQkI70P2bCNUnfPndISnkrxe1CQ9hgByKhAyf7QcvDBjvRkms8A7rNev7oRbO7AumvX5e0+gzOmeNvwXJi6ygRhhaT4f6UyG5/RJItuofgAzKHv5ZZQanlQ3Ar4h4Bwy4bTrrzlswNnz3oJlQS3BYccU3pj5R/ltHoIbxLk3nY2UrcQkmBS/Rdsnvf7k+zyWOr+8BBYi1ggwUhUPWM83FvtkYgzxuZ57eK8DDg3IJnRXU8bhKV6q60YSoj5zskXytgAOvLYE15fhQPdp9iSlhGzd4mJLPfqtHy00h1zkqItfy8GmvN/5yKG8FfH07DJ7VpdBnbsYvC1yDx6MH2yZMLK24de0w/xGEzbDptaSIw7oy4IzT/HyFtc1ovNFFZg8GFhkCTnC8IyHNnmny8qG9waRW3Hc8XGxN6YzaPb7/mjwapBiK+Qchh77RTbyNzE2DxOIRdGyxoTF6jjtbRr5NskNQkC6tm0XtjpkLnG2F/NZ7/nJM7v4bEoJ8qETtAvIlUX8nXzUVbws/M25MzU2afz71BA97wF3YdkJ3KhaVyFjJzD6G8uLnL7T7EdskNgELHw9NiiFptokrc78eGfwoIAEAGmdygS/wE/7gNSvKc8PsDwFBA7W92Tt9vMe764T4vTKCwVusnVabASXa5F4g24Ut1g0="
+
+before_install:
+  - curl -sL https://github.com/jpm4j/jpm4j.installers/raw/master/dist/biz.aQute.jpm.run.jar >jpm4j.jar
+  - java -jar jpm4j.jar -u init
+  - ~/jpm/bin/jpm install com.codacy:codacy-coverage-reporter:assembly
+
+after_success:
+  - ~/jpm/bin/codacy-coverage-reporter -l Java -r target/site/jacoco/jacoco.xml
+
 cache:
   directories:
   - ".autoconf"
   - "$HOME/.m2"
+
 script: mvn clean verify
