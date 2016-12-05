@@ -9,63 +9,89 @@ import info.lindblad.radio.solver.model.Matrix;
 import java.util.*;
 
 /**
- * This is an iterative solver based on a matrix representation of the transmitter/receiver tower configuration.
+ * This solver finds the minimal overall power level increases for each transmitter tower for a given island.
  *
- * The algorithm is:
+ * The basis of the solver is to represent each transmitter/receiver configuration as a matrix. Each row in the
+ * matrix corresponds to a transmitter tower and each column corresponds to a receiver tower.
  *
- *   - Set the best achieved overall power increase (minimalTotalPowerIncrease) to infinity (Integer.MAX_SIZE)
+ * The value in each cell represents the required increase in power for the transmitter tower to give signal
+ * coverage to the receiver tower.
  *
- *   - Create a placeholder for a HashMap containing the resulting transmitter tower power increases
- *     (newTransmitterTowerPowerLevels)
+ * An example of such a matrix is:
  *
- *   - Construct list of all transmitter towers on the island (transmitterTowers)
+ *      R3   R1   R2   R4
+ *  T1  5    5    5    5
+ *  T3  10   16   10   4
+ *  T4  16   10   4    10
+ *  T2  10   4    10   16
+ *  T5  4    10   16   10
  *
- *   - Construct a list of all receiver towers that are currently out of signal coverage on the island
- *     (receiverTowersWithoutCoverage)
+ * Since adjusting the power level of a transmitter will inevitably change the signal coverage for the rest of the island,
+ * the order in which changes are evaluated matters. In order to completely exhaust the possible search space, the list of
+ * receiver towers without signal coverage is turned into a list of all permuted versions of itself. This assures that
+ * all possible chains of changes are tested, e.g. R1 -> R2 -> R3 -> R4, R1 -> R3 -> R4 -> R2, etc.
  *
- *   - Generate all possible permutations of the list receiverTowersWithoutCoverage (permutedReceiverTowersWithoutCoverage)
+ * Similarly, each iteration for the same permuted list of receiver towers has a different starting row, in order to make
+ * sure that all possible initial transmitter changes are evaluated.
  *
- *   - For each permuted version of receiverTowersWithoutCoverage:
+ * This means that a total of n! x m matrices will be evaluated, where n is the number of receiver towers without signal
+ * coverage and m is the number of transmitter towers on the island. These are our starting matrices.
  *
- *       - For each possible starting row (startingRow) in the range 0 -> transmitterTowers.size() - 1
+ * For each such starting matrix, we have to pick a row in each column, representing a choice in making the transmitter
+ * corresponding to that row increase its power level. When a choice has been made, the entire row has to be updated to
+ * reflect the new conditions for each receiver tower. For example, if we pick the (1, 0) cell in the matrix shown earlier,
+ * we are effectively increasing transmitter tower 3 (T3) by 10, thus altering the power level increase required to give the
+ * other receiver towers signal coverage:
  *
- *           - Construct a matrix where each row corresponds to a transmitter tower
- *             and each column corresponds to a receiver tower and the cell value is
- *             the required increase in power for the transmitter tower to give signal
- *             coverage to the receiver tower.
+ *      R3   R1   R2   R4
+ *  T1  5    5    5    5
+ *  T3  0    6    0    0
+ *  T4  16   10   4    10
+ *  T2  10   4    10   16
+ *  T5  4    10   16   10
  *
- *           - Make the first change in transmitter tower power the value of (startingRow, 0) in the matrix
+ * Whilst the initial choice has to be pre-determined to make sure all possible starting configurations are evaluated,
+ * the overall aim is to minimise the overall power increase. Thus, for each subsequent column, we pick the minimal value,
+ * because that corresponds to locally optimising the power required to bring the receiver tower the column represents into
+ * signal coverage.
  *
- *           - Add the original matrix to the resultingMatrices list
+ * For the example matrix given, the next column to evaluate is now [5, 6, 10, 4, 10], which means that the optimal choice
+ * for giving signal coverage to receiver tower 1 (R1) is now 4, which means our overall total power increase after
+ * evaluating two columns is 10 + 4 = 14.
  *
- *           - For each column in 1 -> receiverTowersWithoutCoverage.size() - 1:
+ * The new resulting matrix is:
  *
- *              - For each matrix in the resultingMatrices list:
+ *      R3   R1   R2   R4
+ *  T1  5    5    5    5
+ *  T3  0    6    0    0
+ *  T4  16   10   4    10
+ *  T2  6    0    6    12
+ *  T5  4    10   16   10
  *
- *                  - For each minimal value in the column in the matrix, generate a new matrix by choosing
- *                    that minimal value and append the new matrices to a list (newResultingMatrix) if the current
- *                    overall increase in power level for that matrix is less than or equal to
- *                    knownMinimalTotalPowerIncrease
+ * If there are multiple minimal values in a column, they all have to be evaluated.
  *
- *              - Re-assign newResultingMatrix to resultingMatrices
+ * To achieve this, at the beginning of the evaluation of each matrix, a list holding all matrices that need further
+ * evaluation is constructed and the initial matrix is added.
  *
- *           - The remaining matrices in resultingMatrices have now had their columns traversed left to right
- *              and they have only been kept if they at the time of evaluation did not have a power level increase
- *              higher than knownMinimalTotalPowerIncrease
+ * As the columns in the matrix are traversed left to right evaluating each column gives rise to one or more new matrices
+ * that need to be further evaluated. These matrices are all added to the list.
  *
- *            - Put each matrix from resultingMatrices into a priority queue with the priority being their
- *              overall increase in power level
+ * Once the rightmost column has been evaluated, we are left with a list of fully traversed matrices that all have kept
+ * track of their own overall total power increase as they have made choices of which transmitter tower to increase power
+ * for throughout all their iterations.
  *
- *            - Get and return the lowest priority number (totalPowerIncrease)
+ * Using the list of fully evaluated matrices that arose from the single starting matrix, the matrix with the minimal
+ * total power increase is selected and the power increase it had to make is fed back before the next starting matrix
+ * is being evaluated.
  *
- *      - Compare totalPowerIncrease increase with minimalTotalPowerIncrease and set minimalTotalPowerIncrease to
- *        totalPowerIncrease if totalPowerIncrease is smaller
+ * By keeping track of the best known total power increase so far, we can reduce the number of iterations we have to do
+ * by simply omitting any more evaluations of a matrix if it already has a total power increase higher than the current
+ * known best.
  *
- *      - If the totalPowerIncrease was smaller than minimalPowerIncrease, also re-assign the power level increases
- *        per transmitter tower from the matrix to newTransmitterTowerPowerLevels
- *
- *   - newTransmitterTowerPowerLevels represents the optimal changes to make to the transmitter towers in order to
- *     achieve full signal coverage for all receiver towers
+ * The final solution to what the lowest overall power level increase can be is the latest version of the best known
+ * total power increase so far. Since each fully evaluated matrix keeps track of the transmitter power level adjustments
+ * it has done, we can now return a mapping for the new required power level of each transmitter tower that needs to be
+ * adjusted.
  *
  */
 public class MatrixSolver implements Solver {
