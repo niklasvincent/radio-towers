@@ -10,6 +10,9 @@ public class TransmitterTower extends Tower {
 
     public TransmitterTower(int id, Point point, int power) {
         super(id, point);
+        if (power < 0) {
+            throw new IllegalArgumentException(String.format("Power must be a positive integer, got %d", power));
+        }
         this.power = power;
     }
 
@@ -28,16 +31,10 @@ public class TransmitterTower extends Tower {
      * @param power The new transmitter tower power level
      */
     public void setPower(int power) {
+        if (power < 0) {
+            throw new IllegalArgumentException(String.format("Power must be a positive integer, got %d", power));
+        }
         this.power = power;
-    }
-
-    /**
-     * Increase the power level
-     *
-     * @param powerIncrease The transmitter tower power level increase
-     */
-    public void increasePower(int powerIncrease) {
-        this.power += powerIncrease;
     }
 
     /**
@@ -86,8 +83,12 @@ public class TransmitterTower extends Tower {
         HashSet<Point> covered = new HashSet<Point>();
         for (int deltaX = -1 * power; deltaX <= power; deltaX++) {
             for (int deltaY = -1 * power; deltaY <= power; deltaY++) {
-                Point point = new Point(this.point.getX() + deltaX, this.point.getY() + deltaY);
-                covered.add(point);
+                int x = this.point.getX() + deltaX;
+                int y = this.point.getY() + deltaY;
+                if (x >= 0 && y >= 0) {
+                    Point point = new Point(this.point.getX() + deltaX, this.point.getY() + deltaY);
+                    covered.add(point);
+                }
             }
         }
         return covered;

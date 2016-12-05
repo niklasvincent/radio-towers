@@ -70,4 +70,42 @@ public class TestTransmitterTower extends TestCase {
         ));
         assertEquals(reaches, expected);
     }
+
+    /**
+     * Test that providing a negative id results in an exception being thrown
+     */
+    public void testIllegalId() {
+        try {
+            new TransmitterTower(-1, new Point(1, 1), 1);
+            fail("Expected an IllegalArgumentException to be thrown");
+        } catch (IllegalArgumentException illegalArgumentException) {
+            return;
+        }
+    }
+
+    /**
+     * Test that providing a negative power results in an exception being thrown
+     */
+    public void testIllegalPower() {
+        try {
+            new TransmitterTower(1, new Point(1, 1), -1);
+            fail("Expected an IllegalArgumentException to be thrown");
+        } catch (IllegalArgumentException illegalArgumentException) {
+            return;
+        }
+    }
+
+    /**
+     * Test that providing a negative power results in an exception being thrown
+     */
+    public void testSettingIllegalPower() {
+        try {
+            TransmitterTower transmitterTower = new TransmitterTower(1, new Point(1, 1), 1);
+            transmitterTower.setPower(-1);
+            fail("Expected an IllegalArgumentException to be thrown");
+        } catch (IllegalArgumentException illegalArgumentException) {
+            return;
+        }
+    }
+
 }
