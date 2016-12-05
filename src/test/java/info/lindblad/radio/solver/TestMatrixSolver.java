@@ -1,15 +1,18 @@
 package info.lindblad.radio.solver;
 
-import info.lindblad.radio.model.*;
+import info.lindblad.radio.model.Island;
+import info.lindblad.radio.model.Point;
+import info.lindblad.radio.model.ReceiverTower;
+import info.lindblad.radio.model.TransmitterTower;
 import info.lindblad.radio.util.InputParser;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class TestMatrixSolver extends TestCase {
 
