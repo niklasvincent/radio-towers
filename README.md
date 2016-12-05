@@ -1,6 +1,7 @@
 # radio-towers
 
 [![Build Status](https://travis-ci.org/nlindblad/radio-towers.svg?branch=master)](https://travis-ci.org/nlindblad/radio-towers)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/89f80845697d47c9b304b75427675970)](https://www.codacy.com/app/niklas/radio-towers?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=nlindblad/radio-towers&amp;utm_campaign=Badge_Grade)
 
 ## Install development environment
 

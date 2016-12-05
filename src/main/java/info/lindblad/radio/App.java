@@ -60,7 +60,6 @@ public class App
             }
         } else {
             System.err.println("No island provided. Exiting.");
-            System.exit(1);
         }
     }
 }
